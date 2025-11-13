@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Search, ArrowRight, Filter, Leaf, Heart, Building2, GraduationCap, Zap, Users } from "lucide-react";
 import { projectCategories, saudiRegions, projectStatuses, sdgGoalsData } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from 'react-i18next';
 
 const categoryIcons = {
   Environmental: Leaf,
@@ -23,6 +24,7 @@ const categoryIcons = {
 };
 
 export default function Projects() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -62,10 +64,10 @@ export default function Projects() {
       <div className="bg-card border-b">
         <div className="container mx-auto px-4 lg:px-8 py-12">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4" data-testid="text-page-title">
-            Impact Projects
+            {t('projects.title')}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Explore transformative social and environmental initiatives across Saudi Arabia
+            {t('projects.description')}
           </p>
         </div>
       </div>
@@ -77,18 +79,18 @@ export default function Projects() {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <Filter className="h-4 w-4" />
-                  Filters
+                  {t('projects.filters.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Region</Label>
+                  <Label>{t('projects.filters.region')}</Label>
                   <Select value={selectedRegion} onValueChange={setSelectedRegion}>
                     <SelectTrigger data-testid="select-region">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Regions</SelectItem>
+                      <SelectItem value="all">{t('projects.filters.allRegions')}</SelectItem>
                       {saudiRegions.map(region => (
                         <SelectItem key={region} value={region}>{region}</SelectItem>
                       ))}
@@ -97,13 +99,13 @@ export default function Projects() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Status</Label>
+                  <Label>{t('projects.filters.status')}</Label>
                   <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                     <SelectTrigger data-testid="select-status">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="all">{t('projects.filters.allStatuses')}</SelectItem>
                       {projectStatuses.map(status => (
                         <SelectItem key={status} value={status}>{status}</SelectItem>
                       ))}
@@ -112,7 +114,7 @@ export default function Projects() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label>Category</Label>
+                  <Label>{t('projects.filters.category')}</Label>
                   {projectCategories.map(category => (
                     <div key={category} className="flex items-center space-x-2">
                       <Checkbox

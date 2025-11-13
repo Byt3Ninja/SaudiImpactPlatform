@@ -6,8 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import type { Project, Organization } from "@shared/schema";
 import { ArrowRight, TrendingUp, Users, Target, Building2, Leaf, Heart } from "lucide-react";
 import heroImage from "@assets/generated_images/Saudi_renewable_energy_project_7646abb9.png";
+import { useTranslation } from 'react-i18next';
 
 export default function Home() {
+  const { t } = useTranslation();
   const { data: stats } = useQuery<{
     totalProjects: number;
     activeProjects: number;
@@ -39,15 +41,15 @@ export default function Home() {
 
         <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center max-w-4xl">
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6" data-testid="text-hero-title">
-            Transforming Saudi Arabia Through Impact
+            {t('home.hero.title')}
           </h1>
           <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Discover and track social and environmental impact projects across the Kingdom. Connect with organizations, explore investment opportunities, and measure sustainable development outcomes.
+            {t('home.hero.description')}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/projects">
               <Button size="lg" variant="default" className="text-base" data-testid="button-explore-projects">
-                Explore Projects
+                {t('home.hero.exploreProjects')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -58,7 +60,7 @@ export default function Home() {
                 className="text-base bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
                 data-testid="button-investment-opportunities"
               >
-                Investment Opportunities
+                {t('home.hero.investmentOpportunities')}
               </Button>
             </Link>
           </div>
@@ -69,18 +71,18 @@ export default function Home() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { label: "Total Projects", value: stats?.totalProjects || 0, icon: Target, color: "text-chart-1" },
-              { label: "Active Initiatives", value: stats?.activeProjects || 0, icon: TrendingUp, color: "text-chart-2" },
-              { label: "Organizations", value: stats?.organizations || 0, icon: Users, color: "text-chart-3" },
-              { label: "Total Funding", value: `${((stats?.totalFunding || 0) / 1000000).toFixed(1)}M SAR`, icon: Building2, color: "text-chart-4" },
+              { labelKey: "home.stats.totalProjects", value: stats?.totalProjects || 0, icon: Target, color: "text-chart-1" },
+              { labelKey: "home.stats.activeInitiatives", value: stats?.activeProjects || 0, icon: TrendingUp, color: "text-chart-2" },
+              { labelKey: "home.stats.organizations", value: stats?.organizations || 0, icon: Users, color: "text-chart-3" },
+              { labelKey: "home.stats.totalFunding", value: `${((stats?.totalFunding || 0) / 1000000).toFixed(1)}M ${t('common.currency')}`, icon: Building2, color: "text-chart-4" },
             ].map((stat, idx) => (
-              <Card key={idx} className="hover-elevate" data-testid={`card-stat-${stat.label.toLowerCase().replace(' ', '-')}`}>
+              <Card key={idx} className="hover-elevate" data-testid={`card-stat-${stat.labelKey}`}>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-2">
                     <stat.icon className={`h-8 w-8 ${stat.color}`} />
                   </div>
                   <div className="text-3xl font-bold" data-testid={`text-stat-value-${idx}`}>{stat.value}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+                  <div className="text-sm text-muted-foreground mt-1">{t(stat.labelKey)}</div>
                 </CardContent>
               </Card>
             ))}
@@ -92,12 +94,12 @@ export default function Home() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="font-serif text-3xl md:text-4xl font-semibold mb-2">Featured Projects</h2>
-              <p className="text-muted-foreground">Transformative initiatives driving sustainable development</p>
+              <h2 className="font-serif text-3xl md:text-4xl font-semibold mb-2">{t('home.featured.title')}</h2>
+              <p className="text-muted-foreground">{t('home.featured.description')}</p>
             </div>
             <Link href="/projects">
               <Button variant="outline" data-testid="button-view-all-projects">
-                View All
+                {t('common.viewAll')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>

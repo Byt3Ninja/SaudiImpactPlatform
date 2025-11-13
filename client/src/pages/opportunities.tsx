@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import type { Project } from "@shared/schema";
+import { Project } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, TrendingUp, DollarSign, MapPin, ArrowRight } from "lucide-react";
 import { projectCategories, saudiRegions, sdgGoalsData } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from 'react-i18next';
 
 export default function Opportunities() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -36,10 +38,10 @@ export default function Opportunities() {
       <div className="bg-card border-b">
         <div className="container mx-auto px-4 lg:px-8 py-12">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4" data-testid="text-page-title">
-            Investment Opportunities
+            {t('opportunities.title')}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Connect with impactful projects seeking funding to drive sustainable development
+            {t('opportunities.description')}
           </p>
         </div>
       </div>
@@ -49,17 +51,17 @@ export default function Opportunities() {
           <aside className="lg:col-span-1 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Filters</CardTitle>
+                <CardTitle className="text-base">{t('opportunities.filters.title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Category</Label>
+                  <Label>{t('opportunities.filters.category')}</Label>
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger data-testid="select-category">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="all">{t('opportunities.filters.allCategories')}</SelectItem>
                       {projectCategories.map(category => (
                         <SelectItem key={category} value={category}>{category}</SelectItem>
                       ))}
@@ -68,13 +70,13 @@ export default function Opportunities() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Region</Label>
+                  <Label>{t('opportunities.filters.region')}</Label>
                   <Select value={selectedRegion} onValueChange={setSelectedRegion}>
                     <SelectTrigger data-testid="select-region">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Regions</SelectItem>
+                      <SelectItem value="all">{t('opportunities.filters.allRegions')}</SelectItem>
                       {saudiRegions.map(region => (
                         <SelectItem key={region} value={region}>{region}</SelectItem>
                       ))}
@@ -88,19 +90,19 @@ export default function Opportunities() {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  Quick Stats
+                  {t('opportunities.quickStats')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
                   <div className="text-2xl font-bold">{filteredOpportunities.length}</div>
-                  <div className="text-sm text-muted-foreground">Available Opportunities</div>
+                  <div className="text-sm text-muted-foreground">{t('opportunities.availableOpportunities')}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold">
                     {(filteredOpportunities.reduce((sum, opp) => sum + (opp.fundingGoal || 0), 0) / 1000000).toFixed(1)}M
                   </div>
-                  <div className="text-sm text-muted-foreground">Total Funding Needed (SAR)</div>
+                  <div className="text-sm text-muted-foreground">{t('opportunities.totalFundingNeeded')} ({t('common.currency')})</div>
                 </div>
               </CardContent>
             </Card>
@@ -111,7 +113,7 @@ export default function Opportunities() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search opportunities..."
+                placeholder={t('opportunities.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -180,20 +182,20 @@ export default function Opportunities() {
                             {opportunity.fundingGoal && (
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
-                                  <span className="text-muted-foreground">Funding Progress</span>
+                                  <span className="text-muted-foreground">{t('opportunities.fundingProgress')}</span>
                                   <span className="font-semibold">{fundingProgress.toFixed(0)}%</span>
                                 </div>
                                 <Progress value={fundingProgress} className="h-2" />
                                 <div className="flex items-center justify-between text-sm">
                                   <div>
                                     <span className="font-semibold" data-testid={`text-funding-current-${opportunity.id}`}>
-                                      {(opportunity.fundingCurrent || 0).toLocaleString()} SAR
+                                      {(opportunity.fundingCurrent || 0).toLocaleString()} {t('common.currency')}
                                     </span>
-                                    <span className="text-muted-foreground"> raised</span>
+                                    <span className="text-muted-foreground"> {t('opportunities.raised')}</span>
                                   </div>
                                   <div className="text-muted-foreground">
-                                    Goal: <span className="font-semibold" data-testid={`text-funding-goal-${opportunity.id}`}>
-                                      {opportunity.fundingGoal.toLocaleString()} SAR
+                                    <span className="font-semibold" data-testid={`text-funding-goal-${opportunity.id}`}>
+                                      {opportunity.fundingGoal.toLocaleString()} {t('common.currency')}
                                     </span>
                                   </div>
                                 </div>
@@ -219,11 +221,11 @@ export default function Opportunities() {
                             <div className="flex gap-2">
                               <Link href={`/projects/${opportunity.id}`} className="flex-1">
                                 <Button variant="outline" className="w-full" data-testid={`button-view-details-${opportunity.id}`}>
-                                  View Details
+                                  {t('common.viewAll')}
                                 </Button>
                               </Link>
                               <Button className="flex-1" data-testid={`button-learn-more-${opportunity.id}`}>
-                                Learn More
+                                {t('opportunities.learnMore')}
                                 <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
                             </div>
@@ -238,7 +240,7 @@ export default function Opportunities() {
 
             {!isLoading && filteredOpportunities.length === 0 && (
               <Card className="p-12 text-center">
-                <p className="text-muted-foreground mb-4">No investment opportunities found</p>
+                <p className="text-muted-foreground mb-4">{t('opportunities.noResults')}</p>
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -248,7 +250,7 @@ export default function Opportunities() {
                   }}
                   data-testid="button-reset-filters"
                 >
-                  Reset Filters
+                  {t('opportunities.resetFilters')}
                 </Button>
               </Card>
             )}

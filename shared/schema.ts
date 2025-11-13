@@ -6,7 +6,9 @@ import { z } from "zod";
 export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
+  titleAr: text("title_ar"),
   description: text("description").notNull(),
+  descriptionAr: text("description_ar"),
   category: text("category").notNull(),
   status: text("status").notNull(),
   region: text("region").notNull(),
@@ -16,6 +18,7 @@ export const projects = pgTable("projects", {
   fundingCurrent: real("funding_current").default(0),
   sdgGoals: text("sdg_goals").array().notNull(),
   impactMetrics: text("impact_metrics").notNull(),
+  impactMetricsAr: text("impact_metrics_ar"),
   seekingInvestment: boolean("seeking_investment").default(false),
   latitude: real("latitude"),
   longitude: real("longitude"),
@@ -24,8 +27,10 @@ export const projects = pgTable("projects", {
 export const organizations = pgTable("organizations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
+  nameAr: text("name_ar"),
   type: text("type").notNull(),
   description: text("description").notNull(),
+  descriptionAr: text("description_ar"),
   logoUrl: text("logo_url"),
   website: text("website"),
   contactEmail: text("contact_email"),

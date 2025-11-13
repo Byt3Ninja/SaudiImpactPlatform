@@ -11,8 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Building2, Globe, Mail, ArrowRight } from "lucide-react";
 import { organizationTypes, saudiRegions } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from 'react-i18next';
 
 export default function Organizations() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -36,10 +38,10 @@ export default function Organizations() {
       <div className="bg-card border-b">
         <div className="container mx-auto px-4 lg:px-8 py-12">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4" data-testid="text-page-title">
-            Organizations
+            {t('organizations.title')}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Discover the entities driving sustainable development across Saudi Arabia
+            {t('organizations.description')}
           </p>
         </div>
       </div>
@@ -49,17 +51,17 @@ export default function Organizations() {
           <aside className="lg:col-span-1 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Filters</CardTitle>
+                <CardTitle className="text-base">{t('organizations.filters.title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Organization Type</Label>
+                  <Label>{t('organizations.filters.type')}</Label>
                   <Select value={selectedType} onValueChange={setSelectedType}>
                     <SelectTrigger data-testid="select-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="all">{t('organizations.filters.allTypes')}</SelectItem>
                       {organizationTypes.map(type => (
                         <SelectItem key={type} value={type}>{type}</SelectItem>
                       ))}
@@ -68,13 +70,13 @@ export default function Organizations() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Region</Label>
+                  <Label>{t('organizations.filters.region')}</Label>
                   <Select value={selectedRegion} onValueChange={setSelectedRegion}>
                     <SelectTrigger data-testid="select-region">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Regions</SelectItem>
+                      <SelectItem value="all">{t('organizations.filters.allRegions')}</SelectItem>
                       {saudiRegions.map(region => (
                         <SelectItem key={region} value={region}>{region}</SelectItem>
                       ))}
@@ -90,7 +92,7 @@ export default function Organizations() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search organizations..."
+                placeholder={t('organizations.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -99,7 +101,7 @@ export default function Organizations() {
             </div>
 
             <div className="text-sm text-muted-foreground">
-              {filteredOrganizations.length} {filteredOrganizations.length === 1 ? 'organization' : 'organizations'} found
+              {t('organizations.resultsCount', { count: filteredOrganizations.length })}
             </div>
 
             {isLoading ? (
@@ -152,13 +154,13 @@ export default function Organizations() {
                           <a href={org.website} target="_blank" rel="noopener noreferrer" className="flex-1">
                             <Button variant="outline" size="sm" className="w-full" data-testid={`button-website-${org.id}`}>
                               <Globe className="mr-2 h-3 w-3" />
-                              Website
+                              {t('organizations.website')}
                             </Button>
                           </a>
                         )}
                         <Link href={`/organizations/${org.id}`} className="flex-1">
                           <Button variant="ghost" size="sm" className="w-full" data-testid={`button-view-${org.id}`}>
-                            View
+                            {t('organizations.view')}
                             <ArrowRight className="ml-1 h-3 w-3" />
                           </Button>
                         </Link>
@@ -171,7 +173,7 @@ export default function Organizations() {
 
             {!isLoading && filteredOrganizations.length === 0 && (
               <Card className="p-12 text-center">
-                <p className="text-muted-foreground mb-4">No organizations found matching your criteria</p>
+                <p className="text-muted-foreground mb-4">{t('organizations.noResults')}</p>
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -181,7 +183,7 @@ export default function Organizations() {
                   }}
                   data-testid="button-reset-filters"
                 >
-                  Reset Filters
+                  {t('organizations.resetFilters')}
                 </Button>
               </Card>
             )}

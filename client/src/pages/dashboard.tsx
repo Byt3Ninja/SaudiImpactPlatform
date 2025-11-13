@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { TrendingUp, Target, DollarSign, Users, Activity } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
@@ -57,10 +59,10 @@ export default function Dashboard() {
       <div className="bg-card border-b">
         <div className="container mx-auto px-4 lg:px-8 py-12">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4" data-testid="text-page-title">
-            Impact Dashboard
+            {t('dashboard.title')}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Real-time insights into sustainable development across Saudi Arabia
+            {t('dashboard.description')}
           </p>
         </div>
       </div>

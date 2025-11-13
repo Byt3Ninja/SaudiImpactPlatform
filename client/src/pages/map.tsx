@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { MapPin, Filter, X } from "lucide-react";
 import { projectCategories, saudiRegions } from "@shared/schema";
 import { Link } from "wouter";
+import { useTranslation } from 'react-i18next';
 
 export default function Map() {
+  const { t } = useTranslation();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -42,10 +44,10 @@ export default function Map() {
       <div className="bg-card border-b">
         <div className="container mx-auto px-4 lg:px-8 py-6">
           <h1 className="font-serif text-3xl font-semibold" data-testid="text-page-title">
-            Impact Map
+            {t('map.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Explore projects across Saudi Arabia
+            {t('map.description')}
           </p>
         </div>
       </div>
@@ -56,7 +58,7 @@ export default function Map() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold flex items-center gap-2">
                 <Filter className="h-4 w-4" />
-                Filters
+                {t('map.filters.title')}
               </h3>
               {(selectedCategories.length > 0 || selectedRegions.length > 0) && (
                 <Button
@@ -68,7 +70,7 @@ export default function Map() {
                   }}
                   data-testid="button-clear-filters"
                 >
-                  Clear
+                  {t('common.clear')}
                 </Button>
               )}
             </div>

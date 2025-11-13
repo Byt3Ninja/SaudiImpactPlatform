@@ -1,20 +1,23 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 import { Input } from "@/components/ui/input";
 import { Search, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from 'react-i18next';
 
 export function Header() {
   const [location] = useLocation();
+  const { t } = useTranslation();
 
   const navItems = [
-    { path: "/", label: "Home" },
-    { path: "/projects", label: "Projects" },
-    { path: "/organizations", label: "Organizations" },
-    { path: "/opportunities", label: "Opportunities" },
-    { path: "/dashboard", label: "Impact Dashboard" },
-    { path: "/map", label: "Map" },
+    { path: "/", label: t('nav.home') },
+    { path: "/projects", label: t('nav.projects') },
+    { path: "/organizations", label: t('nav.organizations') },
+    { path: "/opportunities", label: t('nav.opportunities') },
+    { path: "/dashboard", label: t('nav.dashboard') },
+    { path: "/map", label: t('nav.map') },
   ];
 
   return (
@@ -52,11 +55,12 @@ export function Header() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search projects..."
+                placeholder={t('nav.search')}
                 className="pl-9"
                 data-testid="input-search"
               />
             </div>
+            <LanguageToggle />
             <ThemeToggle />
           </div>
         </div>
