@@ -6,6 +6,16 @@ The Saudi Impact Platform is a web application designed to track and showcase so
 
 ## Recent Changes
 
+**November 13, 2025 - OpenStreetMap Integration Complete**
+- Implemented interactive OpenStreetMap using Leaflet 1.9.4 loaded via CDN
+- Added custom colored markers for projects by category (green=Environmental, blue=Social, orange=Infrastructure, etc.)
+- Integrated map with existing filters (category, region) with real-time marker updates
+- Implemented project selection from sidebar to center map on location
+- Fixed XSS security vulnerability in popups by using DOM manipulation with textContent instead of template literals
+- All e2e tests passed: map loading, markers, filtering, popups, RTL/Arabic compatibility
+- Architect approved implementation after security fix
+- No npm dependencies added - uses CDN to avoid React 19 compatibility issues with react-leaflet v5
+
 **November 13, 2025 - MVP Implementation Complete**
 - Fixed query key patterns for TanStack Query to properly construct REST URLs
 - Simplified queryKey in projects.tsx to use base route ["/api/projects"] for client-side filtering
@@ -55,7 +65,7 @@ The application follows Material Design 3 principles with inspiration from Linea
 - Organization Detail: Organization profile with associated projects
 - Opportunities: Investment opportunities seeking funding
 - Dashboard: Analytics and visualizations using Recharts
-- Map: Geographic visualization of projects across Saudi Arabia
+- Map: Interactive OpenStreetMap with project markers, filtering, and real-time updates
 
 ### Backend Architecture
 
@@ -183,5 +193,19 @@ One-to-many relationship between Organizations and Projects via organizationId f
 ### Fonts
 - **Google Fonts:** Inter (sans-serif) and Playfair Display (serif) loaded via CDN
 
+### Map Integration
+- **Leaflet 1.9.4** - Interactive mapping library loaded via CDN (no npm dependency)
+- **OpenStreetMap Tiles** - Free, open-source map tiles from openstreetmap.org
+- **Custom Implementation:** Located at `client/src/components/OpenStreetMap.tsx`
+- **Features:**
+  - Category-based marker colors (Environmental=green, Social=blue, Infrastructure=orange, Healthcare=red, Education=purple, Economic=cyan)
+  - Interactive popups with project details (secure DOM rendering via textContent)
+  - Auto-fit bounds to display all filtered projects
+  - Real-time marker updates based on category/region filters
+  - Project selection from sidebar centers map on location
+  - RTL/Arabic language compatibility
+- **Security:** Popups use DOM manipulation with textContent to prevent XSS attacks from project data
+- **Technical Choice:** CDN-based Leaflet instead of react-leaflet to avoid React 19 dependency conflicts
+
 ### Development Patterns
-The platform does not currently implement authentication but has session infrastructure in place. The architecture supports future additions of user authentication, real-time updates, and enhanced geographic features.
+The platform does not currently implement authentication but has session infrastructure in place. The architecture supports future additions of user authentication, real-time updates, and enhanced geographic features (marker clustering, dark mode tiles).
