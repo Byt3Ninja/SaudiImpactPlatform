@@ -29,12 +29,18 @@ export const organizations = pgTable("organizations", {
   name: text("name").notNull(),
   nameAr: text("name_ar"),
   type: text("type").notNull(),
+  subType: text("sub_type"),
   description: text("description").notNull(),
   descriptionAr: text("description_ar"),
   logoUrl: text("logo_url"),
   website: text("website"),
+  linkedinUrl: text("linkedin_url"),
   contactEmail: text("contact_email"),
   region: text("region").notNull(),
+  sectorFocus: text("sector_focus").array(),
+  sdgFocus: text("sdg_focus").array(),
+  services: text("services").array(),
+  status: text("status"),
 });
 
 export const sessions = pgTable(
@@ -135,6 +141,8 @@ export const projectStatuses = [
 ];
 
 export const organizationTypes = [
+  "Capital Provider",
+  "Ecosystem Builder",
   "Government Entity",
   "NGO",
   "Private Sector",
