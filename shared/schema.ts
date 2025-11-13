@@ -32,6 +32,16 @@ export const organizations = pgTable("organizations", {
   region: text("region").notNull(),
 });
 
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  organizationId: varchar("organization_id"),
+  role: text("role").notNull().default('organization'),
+  createdAt: integer("created_at").notNull().default(sql`cast(extract(epoch from now()) as integer)`),
+});
+
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
 });
@@ -40,10 +50,17 @@ export const insertOrganizationSchema = createInsertSchema(organizations).omit({
   id: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
 export type Organization = typeof organizations.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
 
 export const sdgGoalsData = [
   { id: 1, name: "No Poverty", color: "#E5243B" },
