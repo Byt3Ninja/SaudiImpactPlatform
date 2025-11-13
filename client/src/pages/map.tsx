@@ -10,6 +10,7 @@ import { MapPin, Filter, X } from "lucide-react";
 import { projectCategories, saudiRegions } from "@shared/schema";
 import { Link } from "wouter";
 import { useTranslation } from 'react-i18next';
+import { OpenStreetMap } from "@/components/OpenStreetMap";
 
 export default function Map() {
   const { t } = useTranslation();
@@ -148,29 +149,11 @@ export default function Map() {
         </aside>
 
         <div className="flex-1 relative bg-muted/30">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center p-8 max-w-md">
-              <MapPin className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-serif text-2xl font-semibold mb-2">Interactive Map View</h3>
-              <p className="text-muted-foreground mb-4">
-                This map will display project locations across Saudi Arabia with interactive markers and clusters.
-              </p>
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div className="p-3 bg-card rounded-md border">
-                  <MapPin className="h-5 w-5 text-chart-1 mx-auto mb-1" />
-                  <div className="font-medium">Environmental</div>
-                </div>
-                <div className="p-3 bg-card rounded-md border">
-                  <MapPin className="h-5 w-5 text-chart-2 mx-auto mb-1" />
-                  <div className="font-medium">Social</div>
-                </div>
-                <div className="p-3 bg-card rounded-md border">
-                  <MapPin className="h-5 w-5 text-chart-3 mx-auto mb-1" />
-                  <div className="font-medium">Infrastructure</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <OpenStreetMap
+            projects={filteredProjects}
+            onProjectSelect={setSelectedProject}
+            selectedProject={selectedProject}
+          />
 
           {selectedProject && (
             <div className="absolute top-4 right-4 w-96 max-h-[calc(100%-2rem)] overflow-y-auto">
