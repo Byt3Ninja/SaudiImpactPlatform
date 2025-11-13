@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { eq } from "drizzle-orm";
-import { type Project, type InsertProject, type Organization, type InsertOrganization, projects, organizations } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, projects, organizations, users } from "@shared/schema";
 import type { IStorage } from "./storage";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -67,6 +67,26 @@ export class DbStorage implements IStorage {
   async deleteOrganization(id: string): Promise<boolean> {
     const result = await db.delete(organizations).where(eq(organizations.id, id));
     return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const result = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return result[0];
   }
 
   async getStats(): Promise<{

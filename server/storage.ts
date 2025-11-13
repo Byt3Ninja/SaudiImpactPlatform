@@ -1,4 +1,4 @@
-import { type Project, type InsertProject, type Organization, type InsertOrganization } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -16,6 +16,9 @@ export interface IStorage {
   createOrganization(organization: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, organization: Partial<InsertOrganization>): Promise<Organization | undefined>;
   deleteOrganization(id: string): Promise<boolean>;
+  
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
   
   getStats(): Promise<{
     totalProjects: number;
