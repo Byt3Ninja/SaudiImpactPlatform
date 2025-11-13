@@ -6,6 +6,15 @@ The Saudi Impact Platform is a web application designed to track and showcase so
 
 ## Recent Changes
 
+**November 13, 2025 - Real Organization Data Integration Complete**
+- Integrated 91 real Saudi organizations from JSON dataset into PostgreSQL database
+- Extended organizations schema with new fields: subType, sectorFocus[], sdgFocus[], services[], linkedinUrl, status
+- Created robust data transformation utility (server/transform-data.ts) with nil-safe parsing and region mapping
+- Updated database seeding workflow with proper error handling and validation
+- All e2e tests passed: organizations list (91 orgs), search/filter, organization details, project linking, dashboard stats, map integration
+- Architect approved implementation with hardened nil-safe transformations
+- Database now contains real ecosystem data: PIF, Misk Foundation, SVC, Impact46, RAED Ventures, Wa'ed, and 85 more
+
 **November 13, 2025 - OpenStreetMap Integration Complete**
 - Implemented interactive OpenStreetMap using Leaflet 1.9.4 loaded via CDN
 - Added custom colored markers for projects by category (green=Environmental, blue=Social, orange=Infrastructure, etc.)
@@ -88,9 +97,33 @@ RESTful API endpoints following resource-based patterns:
 
 **Data Layer:**
 The storage abstraction (IStorage interface) enables flexible implementation:
-- Current: In-memory storage with seeded sample data (MemStorage)
-- Production-ready: Database implementation using Drizzle ORM
+- Production: Database implementation (DbStorage) using Drizzle ORM with PostgreSQL
+- Development: In-memory storage (MemStorage) available as fallback
 - Schema validation using Zod with drizzle-zod integration
+
+**Database Seeding:**
+The platform uses a manual seeding workflow for explicit control and auditability:
+
+1. **Seed Command:** `npx tsx server/seed.ts`
+   - Clears existing organizations and projects
+   - Loads 91 real Saudi organizations from JSON via `transform-data.ts`
+   - Creates 8 sample projects linked to real organization IDs
+   - Validates at least 8 organizations exist before linking projects
+   - Proper error handling with try/finally for cleanup
+
+2. **Data Transformation:** Located in `server/transform-data.ts`
+   - Reads JSON dataset from `attached_assets/tableConvert.com_57fv6k_1763052164626.json`
+   - Maps fields: "Location" → "region", "Sub-Type" → "subType", etc.
+   - Normalizes multi-value fields to arrays (sectorFocus, sdgFocus, services)
+   - Nil-safe parsing: handles missing/empty values, returns undefined for empty strings
+   - Region mapping: converts city names to Saudi regions with fallback logging
+   - Warns when location data is missing or unrecognized
+
+3. **Data Validation:**
+   - Ensures all required fields are present
+   - Validates array fields contain non-empty values
+   - Logs warnings for missing location data
+   - Throws error if insufficient organizations for sample projects
 
 **Development Architecture:**
 - Vite for frontend build and HMR (Hot Module Replacement)
@@ -112,8 +145,11 @@ Core entity representing impact initiatives with fields for:
 **Organizations Schema:**
 Entities driving development projects with:
 - Basic information (id, name, type, description)
-- Contact details (website, contactEmail)
+- Extended classification (subType, status)
+- Contact details (website, contactEmail, linkedinUrl)
 - Regional data (region)
+- Impact focus (sectorFocus array, sdgFocus array)
+- Services offered (services array)
 - Branding (logoUrl)
 
 **Relationships:**

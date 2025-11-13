@@ -18,7 +18,12 @@ interface RawOrganizationData {
   Logo_URL: string;
 }
 
-function parseSaudiRegion(location: string): string {
+function parseSaudiRegion(location: string | undefined, orgName?: string): string {
+  if (!location || location.trim() === "") {
+    console.warn(`⚠️  Organization "${orgName || 'Unknown'}" has no location, defaulting to Riyadh`);
+    return "Riyadh";
+  }
+  
   const locationLower = location.toLowerCase();
   
   if (locationLower.includes("riyadh")) return "Riyadh";
@@ -34,6 +39,7 @@ function parseSaudiRegion(location: string): string {
   if (locationLower.includes("bahah")) return "Al Bahah";
   if (locationLower.includes("jawf")) return "Al Jawf";
   
+  console.warn(`⚠️  Location "${location}" for organization "${orgName || 'Unknown'}" not recognized, defaulting to Riyadh`);
   return "Riyadh";
 }
 
@@ -46,8 +52,11 @@ function parseArrayField(field: string): string[] | undefined {
     .filter(item => item.length > 0);
 }
 
-function cleanSubType(subType: string): string {
-  return subType.replace(/^["']+|["']+$/g, '').trim();
+function cleanSubType(subType: string | undefined): string | undefined {
+  if (!subType || subType.trim() === "") return undefined;
+  
+  const cleaned = subType.replace(/^["']+|["']+$/g, '').trim();
+  return cleaned.length > 0 ? cleaned : undefined;
 }
 
 export function transformOrganizations(jsonPath: string): InsertOrganization[] {
@@ -61,14 +70,14 @@ export function transformOrganizations(jsonPath: string): InsertOrganization[] {
       type: raw.Type || "Private Sector",
       subType: cleanSubType(raw["Sub-Type"]),
       description: raw.Description,
-      region: parseSaudiRegion(raw.Location),
+      region: parseSaudiRegion(raw.Location, raw.Name),
       website: raw.Website_URL || undefined,
       linkedinUrl: raw.LinkedIn_URL || undefined,
       logoUrl: raw.Logo_URL || undefined,
       sectorFocus: parseArrayField(raw.Sector_Focus),
       sdgFocus: parseArrayField(raw.SDG_Focus),
       services: parseArrayField(raw["Organization Service"]),
-      status: raw.Status === "Done" ? "Active" : raw.Status,
+      status: raw.Status === "Done" ? "Active" : raw.Status || undefined,
     };
 
     return organization;
