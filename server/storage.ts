@@ -76,13 +76,6 @@ export class MemStorage implements IStorage {
     });
 
     const orgIds = Array.from(this.organizations.keys());
-    
-    import saudiRenewableImage from "../attached_assets/generated_images/Saudi_renewable_energy_project_7646abb9.png";
-    import communityDevImage from "../attached_assets/generated_images/Community_development_collaboration_3975c5a9.png";
-    import waterInfraImage from "../attached_assets/generated_images/Water_conservation_infrastructure_b03224d6.png";
-    import urbanDevImage from "../attached_assets/generated_images/Sustainable_urban_development_348acf6b.png";
-    import educationImage from "../attached_assets/generated_images/Education_technology_project_d17c00de.png";
-    import healthcareImage from "../attached_assets/generated_images/Healthcare_innovation_center_2324ab60.png";
 
     const sampleProjects: InsertProject[] = [
       {
@@ -92,7 +85,7 @@ export class MemStorage implements IStorage {
         status: "Active",
         region: "Tabuk",
         organizationId: orgIds[0],
-        imageUrl: saudiRenewableImage,
+        imageUrl: "/attached_assets/generated_images/Saudi_renewable_energy_project_7646abb9.png",
         fundingGoal: 25000000,
         fundingCurrent: 18500000,
         sdgGoals: ["7", "9", "13"],
@@ -108,7 +101,7 @@ export class MemStorage implements IStorage {
         status: "Active",
         region: "Asir",
         organizationId: orgIds[2],
-        imageUrl: healthcareImage,
+        imageUrl: "/attached_assets/generated_images/Healthcare_innovation_center_2324ab60.png",
         fundingGoal: 5000000,
         fundingCurrent: 3200000,
         sdgGoals: ["3", "10"],
@@ -124,7 +117,7 @@ export class MemStorage implements IStorage {
         status: "Active",
         region: "Riyadh",
         organizationId: orgIds[3],
-        imageUrl: waterInfraImage,
+        imageUrl: "/attached_assets/generated_images/Water_conservation_infrastructure_b03224d6.png",
         fundingGoal: 15000000,
         fundingCurrent: 8900000,
         sdgGoals: ["6", "9", "11"],
@@ -140,7 +133,7 @@ export class MemStorage implements IStorage {
         status: "Planning",
         region: "Jeddah",
         organizationId: orgIds[1],
-        imageUrl: urbanDevImage,
+        imageUrl: "/attached_assets/generated_images/Sustainable_urban_development_348acf6b.png",
         fundingGoal: 45000000,
         fundingCurrent: 12000000,
         sdgGoals: ["11", "13", "15"],
@@ -156,7 +149,7 @@ export class MemStorage implements IStorage {
         status: "Active",
         region: "Riyadh",
         organizationId: orgIds[1],
-        imageUrl: educationImage,
+        imageUrl: "/attached_assets/generated_images/Education_technology_project_d17c00de.png",
         fundingGoal: 8000000,
         fundingCurrent: 8000000,
         sdgGoals: ["4", "9"],
@@ -172,7 +165,7 @@ export class MemStorage implements IStorage {
         status: "Active",
         region: "Riyadh",
         organizationId: orgIds[2],
-        imageUrl: communityDevImage,
+        imageUrl: "/attached_assets/generated_images/Community_development_collaboration_3975c5a9.png",
         fundingGoal: 3000000,
         fundingCurrent: 2100000,
         sdgGoals: ["8", "9", "10"],

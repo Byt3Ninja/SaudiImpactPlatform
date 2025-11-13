@@ -30,7 +30,7 @@ export default function Projects() {
   const [selectedSDGs, setSelectedSDGs] = useState<string[]>([]);
 
   const { data: projects = [], isLoading } = useQuery<Project[]>({
-    queryKey: ["/api/projects", selectedRegion, selectedStatus, selectedCategories, selectedSDGs, searchTerm],
+    queryKey: ["/api/projects"],
   });
 
   const filteredProjects = projects.filter((project) => {

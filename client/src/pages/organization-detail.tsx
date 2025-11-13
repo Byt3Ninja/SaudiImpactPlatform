@@ -16,10 +16,12 @@ export default function OrganizationDetail() {
     enabled: !!organizationId,
   });
 
-  const { data: orgProjects = [] } = useQuery<Project[]>({
-    queryKey: ["/api/projects", { organizationId }],
+  const { data: allProjects = [] } = useQuery<Project[]>({
+    queryKey: ["/api/projects"],
     enabled: !!organizationId,
   });
+
+  const orgProjects = allProjects.filter(p => p.organizationId === organizationId);
 
   if (isLoading) {
     return (
