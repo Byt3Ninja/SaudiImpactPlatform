@@ -113,15 +113,31 @@ export function OpenStreetMap({ projects, onProjectSelect, selectedProject }: Op
           onProjectSelect(project);
         });
 
-      const popupContent = `
-        <div style="min-width: 200px;">
-          <h3 style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px;">${project.title}</h3>
-          <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">${project.category}</p>
-          <p style="margin: 0; font-size: 12px; color: #999;">${project.region}</p>
-        </div>
-      `;
+      const popupContainer = document.createElement('div');
+      popupContainer.style.minWidth = '200px';
+
+      const title = document.createElement('h3');
+      title.style.margin = '0 0 8px 0';
+      title.style.fontWeight = '600';
+      title.style.fontSize = '14px';
+      title.textContent = project.title;
+      popupContainer.appendChild(title);
+
+      const category = document.createElement('p');
+      category.style.margin = '0 0 4px 0';
+      category.style.fontSize = '12px';
+      category.style.color = '#666';
+      category.textContent = project.category;
+      popupContainer.appendChild(category);
+
+      const region = document.createElement('p');
+      region.style.margin = '0';
+      region.style.fontSize = '12px';
+      region.style.color = '#999';
+      region.textContent = project.region;
+      popupContainer.appendChild(region);
       
-      marker.bindPopup(popupContent);
+      marker.bindPopup(popupContainer);
 
       return marker;
     }).filter(Boolean);
