@@ -1,51 +1,37 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { projects, organizations, type InsertProject, type InsertOrganization } from "@shared/schema";
+import { loadOrganizationsFromJSON } from "./transform-data";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
 
 async function seed() {
-  console.log("Seeding database...");
+  console.log("🌱 Starting database seed...");
 
-  const sampleOrgs: InsertOrganization[] = [
-    {
-      name: "Saudi Green Initiative",
-      type: "Government Entity",
-      description: "Leading Saudi Arabia's efforts in environmental sustainability and climate action through innovative programs and partnerships.",
-      region: "Riyadh",
-      website: "https://example.com",
-      contactEmail: "contact@sgi.gov.sa",
-    },
-    {
-      name: "Vision 2030 Foundation",
-      type: "Government Entity",
-      description: "Driving economic diversification and social transformation aligned with Saudi Vision 2030 objectives.",
-      region: "Riyadh",
-      website: "https://example.com",
-      contactEmail: "info@vision2030.sa",
-    },
-    {
-      name: "Community Development NGO",
-      type: "NGO",
-      description: "Empowering local communities through education, healthcare access, and economic opportunity programs.",
-      region: "Jeddah",
-      contactEmail: "hello@cdngo.org",
-    },
-    {
-      name: "Clean Energy Research Institute",
-      type: "Research Institution",
-      description: "Advancing renewable energy technologies and sustainable solutions for Saudi Arabia's energy sector.",
-      region: "Eastern Province",
-      website: "https://example.com",
-      contactEmail: "research@ceri.edu.sa",
-    },
-  ];
+  try {
+    const existingOrgs = await db.select().from(organizations);
+    
+    if (existingOrgs.length > 0) {
+      console.log(`⚠️  Database already has ${existingOrgs.length} organizations.`);
+      console.log("   Clearing existing data before seeding...");
+      
+      await db.delete(projects);
+      await db.delete(organizations);
+      console.log("✅ Cleared existing data");
+    }
 
-  console.log("Creating organizations...");
-  const createdOrgs = await db.insert(organizations).values(sampleOrgs).returning();
-  const orgIds = createdOrgs.map(org => org.id);
-  console.log(`Created ${orgIds.length} organizations`);
+    const realOrgs = loadOrganizationsFromJSON();
+    console.log(`📦 Loading ${realOrgs.length} organizations from JSON...`);
+
+    console.log("Creating organizations...");
+    const createdOrgs = await db.insert(organizations).values(realOrgs).returning();
+    const orgIds = createdOrgs.map(org => org.id);
+    console.log(`✅ Created ${orgIds.length} organizations`);
+
+    if (orgIds.length < 8) {
+      throw new Error(`Expected at least 8 organizations for sample projects, but only ${orgIds.length} were created`);
+    }
 
   const sampleProjects: InsertProject[] = [
     {
@@ -176,15 +162,23 @@ async function seed() {
     },
   ];
 
-  console.log("Creating projects...");
-  const createdProjects = await db.insert(projects).values(sampleProjects).returning();
-  console.log(`Created ${createdProjects.length} projects`);
+    console.log("Creating projects...");
+    const createdProjects = await db.insert(projects).values(sampleProjects).returning();
+    console.log(`✅ Created ${createdProjects.length} projects`);
 
-  console.log("Database seeding complete!");
-  await pool.end();
+    console.log("✅ Database seeding complete!");
+    console.log(`   - ${createdOrgs.length} organizations`);
+    console.log(`   - ${createdProjects.length} projects`);
+
+  } catch (error) {
+    console.error("❌ Error seeding database:", error);
+    throw error;
+  } finally {
+    await pool.end();
+  }
 }
 
 seed().catch((error) => {
-  console.error("Error seeding database:", error);
+  console.error("Fatal error during seeding:", error);
   process.exit(1);
 });

@@ -1,5 +1,50 @@
 import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { loadOrganizationsFromJSON } from "./transform-data";
+
+function normalizeInsertOrganization(insert: InsertOrganization, id: string): Organization {
+  return {
+    id,
+    name: insert.name,
+    nameAr: insert.nameAr ?? null,
+    type: insert.type,
+    subType: insert.subType ?? null,
+    description: insert.description,
+    descriptionAr: insert.descriptionAr ?? null,
+    logoUrl: insert.logoUrl ?? null,
+    website: insert.website ?? null,
+    linkedinUrl: insert.linkedinUrl ?? null,
+    contactEmail: insert.contactEmail ?? null,
+    region: insert.region,
+    sectorFocus: insert.sectorFocus ?? null,
+    sdgFocus: insert.sdgFocus ?? null,
+    services: insert.services ?? null,
+    status: insert.status ?? null,
+  };
+}
+
+function normalizeInsertProject(insert: InsertProject, id: string): Project {
+  return {
+    id,
+    title: insert.title,
+    titleAr: insert.titleAr ?? null,
+    description: insert.description,
+    descriptionAr: insert.descriptionAr ?? null,
+    category: insert.category,
+    status: insert.status,
+    region: insert.region,
+    organizationId: insert.organizationId,
+    imageUrl: insert.imageUrl ?? null,
+    fundingGoal: insert.fundingGoal ?? null,
+    fundingCurrent: insert.fundingCurrent ?? 0,
+    sdgGoals: insert.sdgGoals,
+    impactMetrics: insert.impactMetrics,
+    impactMetricsAr: insert.impactMetricsAr ?? null,
+    seekingInvestment: insert.seekingInvestment ?? false,
+    latitude: insert.latitude ?? null,
+    longitude: insert.longitude ?? null,
+  };
+}
 
 export interface IStorage {
   getAllProjects(): Promise<Project[]>;
@@ -39,43 +84,11 @@ export class MemStorage implements IStorage {
   }
 
   private seedData() {
-    const sampleOrgs: InsertOrganization[] = [
-      {
-        name: "Saudi Green Initiative",
-        type: "Government Entity",
-        description: "Leading Saudi Arabia's efforts in environmental sustainability and climate action through innovative programs and partnerships.",
-        region: "Riyadh",
-        website: "https://example.com",
-        contactEmail: "contact@sgi.gov.sa",
-      },
-      {
-        name: "Vision 2030 Foundation",
-        type: "Government Entity",
-        description: "Driving economic diversification and social transformation aligned with Saudi Vision 2030 objectives.",
-        region: "Riyadh",
-        website: "https://example.com",
-        contactEmail: "info@vision2030.sa",
-      },
-      {
-        name: "Community Development NGO",
-        type: "NGO",
-        description: "Empowering local communities through education, healthcare access, and economic opportunity programs.",
-        region: "Jeddah",
-        contactEmail: "hello@cdngo.org",
-      },
-      {
-        name: "Clean Energy Research Institute",
-        type: "Research Institution",
-        description: "Advancing renewable energy technologies and sustainable solutions for Saudi Arabia's energy sector.",
-        region: "Eastern Province",
-        website: "https://example.com",
-        contactEmail: "research@ceri.edu.sa",
-      },
-    ];
+    const realOrgs = loadOrganizationsFromJSON();
 
-    sampleOrgs.forEach(org => {
+    realOrgs.forEach(org => {
       const id = randomUUID();
-      this.organizations.set(id, { ...org, id });
+      this.organizations.set(id, normalizeInsertOrganization(org, id));
     });
 
     const orgIds = Array.from(this.organizations.keys());
@@ -211,7 +224,7 @@ export class MemStorage implements IStorage {
 
     sampleProjects.forEach(project => {
       const id = randomUUID();
-      this.projects.set(id, { ...project, id });
+      this.projects.set(id, normalizeInsertProject(project, id));
     });
   }
 
@@ -243,7 +256,7 @@ export class MemStorage implements IStorage {
 
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = randomUUID();
-    const project: Project = { ...insertProject, id };
+    const project: Project = normalizeInsertProject(insertProject, id);
     this.projects.set(id, project);
     return project;
   }
@@ -271,7 +284,7 @@ export class MemStorage implements IStorage {
 
   async createOrganization(insertOrganization: InsertOrganization): Promise<Organization> {
     const id = randomUUID();
-    const organization: Organization = { ...insertOrganization, id };
+    const organization: Organization = normalizeInsertOrganization(insertOrganization, id);
     this.organizations.set(id, organization);
     return organization;
   }
