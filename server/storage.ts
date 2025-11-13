@@ -316,6 +316,25 @@ export class MemStorage implements IStorage {
       organizations: this.organizations.size,
     };
   }
+
+  async getUser(id: string): Promise<User | undefined> {
+    return undefined;
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const newUser: User = {
+      id: user.id || randomUUID(),
+      email: user.email || null,
+      firstName: user.firstName || null,
+      lastName: user.lastName || null,
+      profileImageUrl: user.profileImageUrl || null,
+      organizationId: user.organizationId || null,
+      role: user.role || 'organization',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newUser;
+  }
 }
 
 import { DbStorage } from "./db-storage";

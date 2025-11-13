@@ -1,8 +1,22 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema, insertOrganizationSchema } from "@shared/schema";
 import { z } from "zod";
+
+declare module "express-session" {
+  interface SessionData {
+    adminAuthenticated?: boolean;
+  }
+}
+
+const requireAdminAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.session?.adminAuthenticated) {
+    return res.status(401).json({ error: "Unauthorized: Not logged in" });
+  }
+  
+  next();
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stats", async (_req, res) => {
@@ -52,7 +66,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/projects", async (req, res) => {
+  app.post("/api/admin/auth", async (req, res) => {
+    try {
+      const { password } = req.body;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      
+      if (!adminPassword) {
+        return res.status(500).json({ error: "Server configuration error" });
+      }
+      
+      if (password === adminPassword) {
+        req.session.adminAuthenticated = true;
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ error: "Invalid password", success: false });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Authentication failed" });
+    }
+  });
+
+  app.post("/api/admin/logout", async (req, res) => {
+    try {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Session destroy error:', err);
+          return res.status(500).json({ error: "Logout failed" });
+        }
+        res.clearCookie('connect.sid', {
+          path: '/',
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        });
+        res.json({ success: true });
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Logout failed" });
+    }
+  });
+
+  app.get("/api/admin/session", async (req, res) => {
+    try {
+      const isAuthenticated = !!req.session?.adminAuthenticated;
+      res.json({ authenticated: isAuthenticated });
+    } catch (error) {
+      res.status(500).json({ error: "Session check failed" });
+    }
+  });
+
+  app.post("/api/projects", requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertProjectSchema.parse(req.body);
       const project = await storage.createProject(validatedData);
@@ -65,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/projects/:id", async (req, res) => {
+  app.patch("/api/projects/:id", requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertProjectSchema.partial().parse(req.body);
       const project = await storage.updateProject(req.params.id, validatedData);
@@ -81,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/projects/:id", async (req, res) => {
+  app.delete("/api/projects/:id", requireAdminAuth, async (req, res) => {
     try {
       const deleted = await storage.deleteProject(req.params.id);
       if (!deleted) {
@@ -123,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/organizations", async (req, res) => {
+  app.post("/api/organizations", requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertOrganizationSchema.parse(req.body);
       const organization = await storage.createOrganization(validatedData);
@@ -136,7 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/organizations/:id", async (req, res) => {
+  app.patch("/api/organizations/:id", requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertOrganizationSchema.partial().parse(req.body);
       const organization = await storage.updateOrganization(req.params.id, validatedData);
@@ -152,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/organizations/:id", async (req, res) => {
+  app.delete("/api/organizations/:id", requireAdminAuth, async (req, res) => {
     try {
       const deleted = await storage.deleteOrganization(req.params.id);
       if (!deleted) {
