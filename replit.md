@@ -4,6 +4,27 @@
 
 The Saudi Impact Platform is a web application designed to track and showcase social and environmental impact projects across Saudi Arabia. It serves institutional users, researchers, and the general public by providing transparent access to information about development projects, organizations, and investment opportunities. The platform emphasizes data credibility, clear information hierarchy, and regional identity while maintaining professional standards suitable for governmental and institutional use.
 
+## Recent Changes
+
+**November 13, 2025 - MVP Implementation Complete**
+- Fixed query key patterns for TanStack Query to properly construct REST URLs
+- Simplified queryKey in projects.tsx to use base route ["/api/projects"] for client-side filtering
+- Corrected organization-detail.tsx to filter projects client-side instead of passing object in queryKey
+- All e2e tests passed successfully across all pages (home, projects, organizations, opportunities, dashboard, map)
+- Verified theme toggle functionality (dark/light mode)
+- Architect approved final implementation with no critical issues
+- Platform ready for demo/presentation with all core features functional
+
+**MVP Status: Complete and Tested**
+All user journeys verified working:
+✅ Browse and filter projects by region, status, category, and SDG goals
+✅ View detailed project information with funding status and impact metrics
+✅ Explore organizations and their associated projects
+✅ Discover investment opportunities with funding progress visualization
+✅ Access analytics dashboard with charts and statistics
+✅ View projects on interactive map interface
+✅ Toggle between light and dark themes
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
