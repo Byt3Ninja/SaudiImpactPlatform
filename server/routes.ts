@@ -19,8 +19,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/register", async (req, res) => {
     try {
       const validatedData = registerUserSchema.parse(req.body);
+      const normalizedEmail = validatedData.email.toLowerCase().trim();
       
-      const existingUser = await storage.getUserByEmail(validatedData.email);
+      const existingUser = await storage.getUserByEmail(normalizedEmail);
       if (existingUser) {
         return res.status(400).json({ message: "Email already registered" });
       }
@@ -28,6 +29,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hashedPassword = await hashPassword(validatedData.password);
       const user = await storage.createUser({
         ...validatedData,
+        email: normalizedEmail,
         password: hashedPassword,
       });
 
@@ -45,8 +47,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const validatedData = loginUserSchema.parse(req.body);
+      const normalizedEmail = validatedData.email.toLowerCase().trim();
       
-      const user = await storage.getUserByEmail(validatedData.email);
+      const user = await storage.getUserByEmail(normalizedEmail);
       if (!user) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
