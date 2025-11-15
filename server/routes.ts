@@ -500,9 +500,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/submissions/my", isAuthenticated, async (req: any, res) => {
+  app.get("/api/submissions/my", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId!;
       const submissions = await storage.getSubmissionsByUser(userId);
       res.json(submissions);
     } catch (error) {
@@ -510,12 +510,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/submissions", isAuthenticated, async (req: any, res) => {
+  app.post("/api/submissions", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertOrganizationSubmissionSchema.parse(req.body);
       const submission = await storage.createSubmission({
         ...validatedData,
-        submittedBy: (req.user as any).claims.sub,
+        submittedBy: req.session.userId!,
       });
       res.status(201).json(submission);
     } catch (error) {
@@ -556,9 +556,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/submissions/:id/approve", requireAdminAuth, async (req: any, res) => {
+  app.post("/api/submissions/:id/approve", requireAdminAuth, async (req, res) => {
     try {
-      const reviewerId = req.session?.adminAuthenticated ? "admin" : req.user?.claims?.sub || "unknown";
+      const reviewerId = "admin";
       const organization = await storage.approveSubmission(req.params.id, reviewerId);
       if (!organization) {
         return res.status(404).json({ error: "Submission not found" });

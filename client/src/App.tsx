@@ -26,12 +26,16 @@ import AdminServices from "@/pages/admin/services";
 import AdminSubmissions from "@/pages/admin/submissions";
 import SubmitOrganization from "@/pages/submit-organization";
 import MySubmissions from "@/pages/my-submissions";
+import Register from "@/pages/register";
+import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/register" component={Register} />
+      <Route path="/login" component={Login} />
       <Route path="/projects" component={Projects} />
       <Route path="/projects/:id" component={ProjectDetail} />
       <Route path="/organizations" component={Organizations} />

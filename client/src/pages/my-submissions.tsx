@@ -1,4 +1,4 @@
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -43,14 +43,15 @@ export default function MySubmissions() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button
-                onClick={() => (window.location.href = '/api/login')}
-                className="w-full"
-                data-testid="button-login"
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Log In with Replit
-              </Button>
+              <Link href="/login">
+                <Button
+                  className="w-full"
+                  data-testid="button-login"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Log In to Submit
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>

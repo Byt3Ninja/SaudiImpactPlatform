@@ -7,6 +7,7 @@ import { Search, Globe, Send, FileText, LogIn, User, LogOut } from "lucide-react
 import { cn } from "@/lib/utils";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { queryClient } from '@/lib/queryClient';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,15 +72,28 @@ export function Header() {
             </div>
 
             {!isLoading && !isAuthenticated && (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => (window.location.href = '/api/login')}
-                data-testid="button-login"
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                {t('auth.login', 'Login')}
-              </Button>
+              <>
+                <Link href="/login">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    data-testid="button-login"
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    {t('auth.login', 'Login')}
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    data-testid="button-register"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    {t('auth.register', 'Register')}
+                  </Button>
+                </Link>
+              </>
             )}
 
             {isAuthenticated && (
@@ -118,7 +132,15 @@ export function Header() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => (window.location.href = '/api/logout')}
+                      onClick={async () => {
+                        try {
+                          await fetch('/api/auth/logout', { method: 'POST' });
+                          await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                          window.location.href = '/';
+                        } catch (error) {
+                          console.error('Logout failed:', error);
+                        }
+                      }}
                       data-testid="button-logout"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
