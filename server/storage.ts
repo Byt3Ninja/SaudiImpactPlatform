@@ -1,4 +1,4 @@
-import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { loadOrganizationsFromJSON } from "./transform-data";
 
@@ -71,15 +71,47 @@ export interface IStorage {
     totalFunding: number;
     organizations: number;
   }>;
+  
+  getAllRegions(): Promise<Region[]>;
+  getRegionById(id: string): Promise<Region | undefined>;
+  createRegion(region: InsertRegion): Promise<Region>;
+  updateRegion(id: string, region: Partial<InsertRegion>): Promise<Region | undefined>;
+  deleteRegion(id: string): Promise<boolean>;
+  
+  getAllOrganizationTypes(): Promise<OrganizationType[]>;
+  getOrganizationTypeById(id: string): Promise<OrganizationType | undefined>;
+  createOrganizationType(type: InsertOrganizationType): Promise<OrganizationType>;
+  updateOrganizationType(id: string, type: Partial<InsertOrganizationType>): Promise<OrganizationType | undefined>;
+  deleteOrganizationType(id: string): Promise<boolean>;
+  
+  getAllOrganizationSubtypes(): Promise<OrganizationSubtype[]>;
+  getOrganizationSubtypeById(id: string): Promise<OrganizationSubtype | undefined>;
+  createOrganizationSubtype(subtype: InsertOrganizationSubtype): Promise<OrganizationSubtype>;
+  updateOrganizationSubtype(id: string, subtype: Partial<InsertOrganizationSubtype>): Promise<OrganizationSubtype | undefined>;
+  deleteOrganizationSubtype(id: string): Promise<boolean>;
+  
+  getAllServices(): Promise<Service[]>;
+  getServiceById(id: string): Promise<Service | undefined>;
+  createService(service: InsertService): Promise<Service>;
+  updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined>;
+  deleteService(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private projects: Map<string, Project>;
   private organizations: Map<string, Organization>;
+  private regions: Map<string, Region>;
+  private organizationTypes: Map<string, OrganizationType>;
+  private organizationSubtypes: Map<string, OrganizationSubtype>;
+  private services: Map<string, Service>;
 
   constructor() {
     this.projects = new Map();
     this.organizations = new Map();
+    this.regions = new Map();
+    this.organizationTypes = new Map();
+    this.organizationSubtypes = new Map();
+    this.services = new Map();
     this.seedData();
   }
 
@@ -334,6 +366,144 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
     return newUser;
+  }
+
+  async getAllRegions(): Promise<Region[]> {
+    return Array.from(this.regions.values());
+  }
+
+  async getRegionById(id: string): Promise<Region | undefined> {
+    return this.regions.get(id);
+  }
+
+  async createRegion(insertRegion: InsertRegion): Promise<Region> {
+    const id = randomUUID();
+    const region: Region = {
+      id,
+      name: insertRegion.name,
+      nameAr: insertRegion.nameAr ?? null,
+      isActive: insertRegion.isActive ?? true,
+      createdAt: new Date(),
+    };
+    this.regions.set(id, region);
+    return region;
+  }
+
+  async updateRegion(id: string, updates: Partial<InsertRegion>): Promise<Region | undefined> {
+    const region = this.regions.get(id);
+    if (!region) return undefined;
+    
+    const updatedRegion = { ...region, ...updates };
+    this.regions.set(id, updatedRegion);
+    return updatedRegion;
+  }
+
+  async deleteRegion(id: string): Promise<boolean> {
+    return this.regions.delete(id);
+  }
+
+  async getAllOrganizationTypes(): Promise<OrganizationType[]> {
+    return Array.from(this.organizationTypes.values());
+  }
+
+  async getOrganizationTypeById(id: string): Promise<OrganizationType | undefined> {
+    return this.organizationTypes.get(id);
+  }
+
+  async createOrganizationType(insertType: InsertOrganizationType): Promise<OrganizationType> {
+    const id = randomUUID();
+    const orgType: OrganizationType = {
+      id,
+      name: insertType.name,
+      nameAr: insertType.nameAr ?? null,
+      isActive: insertType.isActive ?? true,
+      createdAt: new Date(),
+    };
+    this.organizationTypes.set(id, orgType);
+    return orgType;
+  }
+
+  async updateOrganizationType(id: string, updates: Partial<InsertOrganizationType>): Promise<OrganizationType | undefined> {
+    const orgType = this.organizationTypes.get(id);
+    if (!orgType) return undefined;
+    
+    const updatedOrgType = { ...orgType, ...updates };
+    this.organizationTypes.set(id, updatedOrgType);
+    return updatedOrgType;
+  }
+
+  async deleteOrganizationType(id: string): Promise<boolean> {
+    return this.organizationTypes.delete(id);
+  }
+
+  async getAllOrganizationSubtypes(): Promise<OrganizationSubtype[]> {
+    return Array.from(this.organizationSubtypes.values());
+  }
+
+  async getOrganizationSubtypeById(id: string): Promise<OrganizationSubtype | undefined> {
+    return this.organizationSubtypes.get(id);
+  }
+
+  async createOrganizationSubtype(insertSubtype: InsertOrganizationSubtype): Promise<OrganizationSubtype> {
+    const id = randomUUID();
+    const subtype: OrganizationSubtype = {
+      id,
+      name: insertSubtype.name,
+      nameAr: insertSubtype.nameAr ?? null,
+      typeId: insertSubtype.typeId ?? null,
+      isActive: insertSubtype.isActive ?? true,
+      createdAt: new Date(),
+    };
+    this.organizationSubtypes.set(id, subtype);
+    return subtype;
+  }
+
+  async updateOrganizationSubtype(id: string, updates: Partial<InsertOrganizationSubtype>): Promise<OrganizationSubtype | undefined> {
+    const subtype = this.organizationSubtypes.get(id);
+    if (!subtype) return undefined;
+    
+    const updatedSubtype = { ...subtype, ...updates };
+    this.organizationSubtypes.set(id, updatedSubtype);
+    return updatedSubtype;
+  }
+
+  async deleteOrganizationSubtype(id: string): Promise<boolean> {
+    return this.organizationSubtypes.delete(id);
+  }
+
+  async getAllServices(): Promise<Service[]> {
+    return Array.from(this.services.values());
+  }
+
+  async getServiceById(id: string): Promise<Service | undefined> {
+    return this.services.get(id);
+  }
+
+  async createService(insertService: InsertService): Promise<Service> {
+    const id = randomUUID();
+    const service: Service = {
+      id,
+      name: insertService.name,
+      nameAr: insertService.nameAr ?? null,
+      description: insertService.description ?? null,
+      isActive: insertService.isActive ?? true,
+      createdAt: new Date(),
+    };
+    this.services.set(id, service);
+    return service;
+  }
+
+  async updateService(id: string, updates: Partial<InsertService>): Promise<Service | undefined> {
+    const service = this.services.get(id);
+    if (!service) return undefined;
+    
+    const updatedService = { ...service, ...updates };
+    this.services.set(id, updatedService);
+    return updatedService;
+  }
+
+  async deleteService(id: string): Promise<boolean> {
+    return this.services.delete(id);
   }
 }
 

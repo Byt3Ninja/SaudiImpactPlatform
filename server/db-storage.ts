@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { eq } from "drizzle-orm";
-import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, projects, organizations, users } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, projects, organizations, users, regions, organizationTypesTable, organizationSubtypes, servicesTable } from "@shared/schema";
 import type { IStorage } from "./storage";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -107,5 +107,101 @@ export class DbStorage implements IStorage {
       totalFunding,
       organizations: allOrgs.length,
     };
+  }
+
+  async getAllRegions(): Promise<Region[]> {
+    return await db.select().from(regions);
+  }
+
+  async getRegionById(id: string): Promise<Region | undefined> {
+    const result = await db.select().from(regions).where(eq(regions.id, id));
+    return result[0];
+  }
+
+  async createRegion(insertRegion: InsertRegion): Promise<Region> {
+    const result = await db.insert(regions).values(insertRegion).returning();
+    return result[0];
+  }
+
+  async updateRegion(id: string, updates: Partial<InsertRegion>): Promise<Region | undefined> {
+    const result = await db.update(regions).set(updates).where(eq(regions.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteRegion(id: string): Promise<boolean> {
+    const result = await db.delete(regions).where(eq(regions.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async getAllOrganizationTypes(): Promise<OrganizationType[]> {
+    return await db.select().from(organizationTypesTable);
+  }
+
+  async getOrganizationTypeById(id: string): Promise<OrganizationType | undefined> {
+    const result = await db.select().from(organizationTypesTable).where(eq(organizationTypesTable.id, id));
+    return result[0];
+  }
+
+  async createOrganizationType(insertType: InsertOrganizationType): Promise<OrganizationType> {
+    const result = await db.insert(organizationTypesTable).values(insertType).returning();
+    return result[0];
+  }
+
+  async updateOrganizationType(id: string, updates: Partial<InsertOrganizationType>): Promise<OrganizationType | undefined> {
+    const result = await db.update(organizationTypesTable).set(updates).where(eq(organizationTypesTable.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteOrganizationType(id: string): Promise<boolean> {
+    const result = await db.delete(organizationTypesTable).where(eq(organizationTypesTable.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async getAllOrganizationSubtypes(): Promise<OrganizationSubtype[]> {
+    return await db.select().from(organizationSubtypes);
+  }
+
+  async getOrganizationSubtypeById(id: string): Promise<OrganizationSubtype | undefined> {
+    const result = await db.select().from(organizationSubtypes).where(eq(organizationSubtypes.id, id));
+    return result[0];
+  }
+
+  async createOrganizationSubtype(insertSubtype: InsertOrganizationSubtype): Promise<OrganizationSubtype> {
+    const result = await db.insert(organizationSubtypes).values(insertSubtype).returning();
+    return result[0];
+  }
+
+  async updateOrganizationSubtype(id: string, updates: Partial<InsertOrganizationSubtype>): Promise<OrganizationSubtype | undefined> {
+    const result = await db.update(organizationSubtypes).set(updates).where(eq(organizationSubtypes.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteOrganizationSubtype(id: string): Promise<boolean> {
+    const result = await db.delete(organizationSubtypes).where(eq(organizationSubtypes.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async getAllServices(): Promise<Service[]> {
+    return await db.select().from(servicesTable);
+  }
+
+  async getServiceById(id: string): Promise<Service | undefined> {
+    const result = await db.select().from(servicesTable).where(eq(servicesTable.id, id));
+    return result[0];
+  }
+
+  async createService(insertService: InsertService): Promise<Service> {
+    const result = await db.insert(servicesTable).values(insertService).returning();
+    return result[0];
+  }
+
+  async updateService(id: string, updates: Partial<InsertService>): Promise<Service | undefined> {
+    const result = await db.update(servicesTable).set(updates).where(eq(servicesTable.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteService(id: string): Promise<boolean> {
+    const result = await db.delete(servicesTable).where(eq(servicesTable.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
   }
 }

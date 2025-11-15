@@ -65,6 +65,40 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const regions = pgTable("regions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  nameAr: text("name_ar"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const organizationTypesTable = pgTable("organization_types", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  nameAr: text("name_ar"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const organizationSubtypes = pgTable("organization_subtypes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  nameAr: text("name_ar"),
+  typeId: varchar("type_id"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const servicesTable = pgTable("services", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  nameAr: text("name_ar"),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
 });
@@ -79,6 +113,26 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const insertRegionSchema = createInsertSchema(regions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertOrganizationTypeSchema = createInsertSchema(organizationTypesTable).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertOrganizationSubtypeSchema = createInsertSchema(organizationSubtypes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertServiceSchema = createInsertSchema(servicesTable).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -86,6 +140,14 @@ export type Organization = typeof organizations.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
+export type InsertRegion = z.infer<typeof insertRegionSchema>;
+export type Region = typeof regions.$inferSelect;
+export type InsertOrganizationType = z.infer<typeof insertOrganizationTypeSchema>;
+export type OrganizationType = typeof organizationTypesTable.$inferSelect;
+export type InsertOrganizationSubtype = z.infer<typeof insertOrganizationSubtypeSchema>;
+export type OrganizationSubtype = typeof organizationSubtypes.$inferSelect;
+export type InsertService = z.infer<typeof insertServiceSchema>;
+export type Service = typeof servicesTable.$inferSelect;
 
 export const sdgGoalsData = [
   { id: 1, name: "No Poverty", color: "#E5243B" },
