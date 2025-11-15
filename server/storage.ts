@@ -1,4 +1,4 @@
-import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, type OrganizationSubmission, type InsertOrganizationSubmission } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type InsertUser, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, type OrganizationSubmission, type InsertOrganizationSubmission } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { loadOrganizationsFromJSON } from "./transform-data";
 
@@ -63,6 +63,8 @@ export interface IStorage {
   deleteOrganization(id: string): Promise<boolean>;
   
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: Omit<InsertUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   
   getStats(): Promise<{
@@ -108,6 +110,7 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private projects: Map<string, Project>;
   private organizations: Map<string, Organization>;
+  private users: Map<string, User>;
   private regions: Map<string, Region>;
   private organizationTypes: Map<string, OrganizationType>;
   private organizationSubtypes: Map<string, OrganizationSubtype>;
@@ -117,6 +120,7 @@ export class MemStorage implements IStorage {
   constructor() {
     this.projects = new Map();
     this.organizations = new Map();
+    this.users = new Map();
     this.regions = new Map();
     this.organizationTypes = new Map();
     this.organizationSubtypes = new Map();
@@ -360,21 +364,48 @@ export class MemStorage implements IStorage {
   }
 
   async getUser(id: string): Promise<User | undefined> {
-    return undefined;
+    return this.users.get(id);
   }
 
-  async upsertUser(user: UpsertUser): Promise<User> {
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async createUser(user: Omit<InsertUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> {
+    const id = randomUUID();
     const newUser: User = {
-      id: user.id || randomUUID(),
-      email: user.email || null,
-      firstName: user.firstName || null,
-      lastName: user.lastName || null,
+      id,
+      email: user.email,
+      password: user.password,
+      firstName: user.firstName,
+      lastName: user.lastName,
       profileImageUrl: user.profileImageUrl || null,
       organizationId: user.organizationId || null,
-      role: user.role || 'organization',
+      role: user.role || 'user',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+    this.users.set(id, newUser);
+    return newUser;
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const id = user.id || randomUUID();
+    const existingUser = this.users.get(id);
+    
+    const newUser: User = {
+      id,
+      email: user.email,
+      password: user.password,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profileImageUrl: user.profileImageUrl || null,
+      organizationId: user.organizationId || null,
+      role: user.role || 'user',
+      createdAt: existingUser?.createdAt || new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(id, newUser);
     return newUser;
   }
 
