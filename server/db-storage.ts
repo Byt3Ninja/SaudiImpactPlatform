@@ -232,8 +232,8 @@ export class DbStorage implements IStorage {
     return await db.select().from(organizationSubmissions).where(eq(organizationSubmissions.status, "pending"));
   }
 
-  async createSubmission(insertSubmission: InsertOrganizationSubmission): Promise<OrganizationSubmission> {
-    const result = await db.insert(organizationSubmissions).values(insertSubmission).returning();
+  async createSubmission(insertSubmission: Omit<OrganizationSubmission, 'id' | 'reviewedAt' | 'reviewedBy' | 'rejectionReason'>): Promise<OrganizationSubmission> {
+    const result = await db.insert(organizationSubmissions).values(insertSubmission as any).returning();
     return result[0];
   }
 

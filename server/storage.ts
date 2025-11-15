@@ -102,7 +102,7 @@ export interface IStorage {
   getSubmissionById(id: string): Promise<OrganizationSubmission | undefined>;
   getSubmissionsByUser(userId: string): Promise<OrganizationSubmission[]>;
   getPendingSubmissions(): Promise<OrganizationSubmission[]>;
-  createSubmission(submission: InsertOrganizationSubmission): Promise<OrganizationSubmission>;
+  createSubmission(submission: Omit<OrganizationSubmission, 'id' | 'reviewedAt' | 'reviewedBy' | 'rejectionReason'>): Promise<OrganizationSubmission>;
   approveSubmission(id: string, reviewerId: string): Promise<Organization | undefined>;
   rejectSubmission(id: string, reviewerId: string, reason: string): Promise<OrganizationSubmission | undefined>;
 }
@@ -567,7 +567,7 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createSubmission(insertSubmission: InsertOrganizationSubmission): Promise<OrganizationSubmission> {
+  async createSubmission(insertSubmission: Omit<OrganizationSubmission, 'id' | 'reviewedAt' | 'reviewedBy' | 'rejectionReason'>): Promise<OrganizationSubmission> {
     const id = randomUUID();
     const submission: OrganizationSubmission = {
       id,
