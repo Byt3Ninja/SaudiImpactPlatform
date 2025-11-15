@@ -4,6 +4,10 @@ import session from 'express-session';
 import connectPg from 'connect-pg-simple';
 
 export function setupSession(app: Express) {
+  if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required for secure session management');
+  }
+
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -13,16 +17,22 @@ export function setupSession(app: Express) {
     tableName: "sessions",
   });
 
-  app.set("trust proxy", 1);
+  const isProduction = process.env.NODE_ENV === 'production';
+  const trustProxy = process.env.TRUST_PROXY === 'true' || isProduction;
+  
+  if (trustProxy) {
+    app.set("trust proxy", 1);
+  }
+
   app.use(
     session({
-      secret: process.env.SESSION_SECRET!,
+      secret: process.env.SESSION_SECRET,
       store: sessionStore,
       resave: false,
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isProduction,
         sameSite: 'lax',
         maxAge: sessionTtl,
       },
