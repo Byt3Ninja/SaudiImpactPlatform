@@ -36,8 +36,7 @@ import { Plus, Pencil, Trash2, Search, Globe, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/adminApi';
 import { queryClient } from '@/lib/queryClient';
-import type { Organization, InsertOrganization } from '@shared/schema';
-import { organizationTypes, saudiRegions } from '@shared/schema';
+import type { Organization, InsertOrganization, Region, OrganizationType, OrganizationSubtype, Service } from '@shared/schema';
 
 export default function AdminOrganizations() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +48,22 @@ export default function AdminOrganizations() {
 
   const { data: organizations, isLoading } = useQuery<Organization[]>({
     queryKey: ['/api/organizations'],
+  });
+
+  const { data: regions, isLoading: isLoadingRegions } = useQuery<Region[]>({
+    queryKey: ['/api/regions'],
+  });
+
+  const { data: organizationTypes, isLoading: isLoadingTypes } = useQuery<OrganizationType[]>({
+    queryKey: ['/api/organization-types'],
+  });
+
+  const { data: organizationSubtypes, isLoading: isLoadingSubtypes } = useQuery<OrganizationSubtype[]>({
+    queryKey: ['/api/organization-subtypes'],
+  });
+
+  const { data: services, isLoading: isLoadingServices } = useQuery<Service[]>({
+    queryKey: ['/api/services'],
   });
 
   const createMutation = useMutation({
@@ -261,7 +276,15 @@ export default function AdminOrganizations() {
           open={isCreateDialogOpen}
           onOpenChange={setIsCreateDialogOpen}
           onSubmit={handleCreateOrg}
+          regions={regions || []}
+          organizationTypes={organizationTypes || []}
+          organizationSubtypes={organizationSubtypes || []}
+          services={services || []}
           isLoading={createMutation.isPending}
+          isLoadingRegions={isLoadingRegions}
+          isLoadingTypes={isLoadingTypes}
+          isLoadingSubtypes={isLoadingSubtypes}
+          isLoadingServices={isLoadingServices}
           title="Create Organization"
         />
 
@@ -269,7 +292,15 @@ export default function AdminOrganizations() {
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
           onSubmit={handleUpdateOrg}
+          regions={regions || []}
+          organizationTypes={organizationTypes || []}
+          organizationSubtypes={organizationSubtypes || []}
+          services={services || []}
           isLoading={updateMutation.isPending}
+          isLoadingRegions={isLoadingRegions}
+          isLoadingTypes={isLoadingTypes}
+          isLoadingSubtypes={isLoadingSubtypes}
+          isLoadingServices={isLoadingServices}
           title="Edit Organization"
           organization={selectedOrg}
         />
@@ -309,17 +340,37 @@ function OrgFormDialog({
   open,
   onOpenChange,
   onSubmit,
+  regions,
+  organizationTypes,
+  organizationSubtypes,
+  services,
   isLoading,
+  isLoadingRegions,
+  isLoadingTypes,
+  isLoadingSubtypes,
+  isLoadingServices,
   title,
   organization,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  regions: Region[];
+  organizationTypes: OrganizationType[];
+  organizationSubtypes: OrganizationSubtype[];
+  services: Service[];
   isLoading: boolean;
+  isLoadingRegions: boolean;
+  isLoadingTypes: boolean;
+  isLoadingSubtypes: boolean;
+  isLoadingServices: boolean;
   title: string;
   organization?: Organization | null;
 }) {
+  const activeRegions = regions.filter((region) => region.isActive);
+  const activeTypes = organizationTypes.filter((type) => type.isActive);
+  const activeSubtypes = organizationSubtypes.filter((subtype) => subtype.isActive);
+  const activeServices = services.filter((service) => service.isActive);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -343,14 +394,14 @@ function OrgFormDialog({
             </div>
             <div>
               <Label htmlFor="type">Type</Label>
-              <Select name="type" defaultValue={organization?.type} required>
+              <Select name="type" defaultValue={organization?.type} required disabled={isLoadingTypes}>
                 <SelectTrigger data-testid="select-type">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={isLoadingTypes ? "Loading types..." : "Select type"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {organizationTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                  {activeTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.name}>
+                      {type.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -358,14 +409,14 @@ function OrgFormDialog({
             </div>
             <div>
               <Label htmlFor="region">Region</Label>
-              <Select name="region" defaultValue={organization?.region} required>
+              <Select name="region" defaultValue={organization?.region} required disabled={isLoadingRegions}>
                 <SelectTrigger data-testid="select-region">
-                  <SelectValue placeholder="Select region" />
+                  <SelectValue placeholder={isLoadingRegions ? "Loading regions..." : "Select region"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {saudiRegions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
+                  {activeRegions.map((region) => (
+                    <SelectItem key={region.id} value={region.name}>
+                      {region.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

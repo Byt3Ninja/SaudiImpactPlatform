@@ -36,8 +36,8 @@ import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/adminApi';
 import { queryClient } from '@/lib/queryClient';
-import type { Project, InsertProject, Organization } from '@shared/schema';
-import { projectCategories, projectStatuses, saudiRegions } from '@shared/schema';
+import type { Project, InsertProject, Organization, Region } from '@shared/schema';
+import { projectCategories, projectStatuses } from '@shared/schema';
 
 export default function AdminProjects() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +53,10 @@ export default function AdminProjects() {
 
   const { data: organizations } = useQuery<Organization[]>({
     queryKey: ['/api/organizations'],
+  });
+
+  const { data: regions, isLoading: isLoadingRegions } = useQuery<Region[]>({
+    queryKey: ['/api/regions'],
   });
 
   const createMutation = useMutation({
@@ -273,7 +277,9 @@ export default function AdminProjects() {
           onOpenChange={setIsCreateDialogOpen}
           onSubmit={handleCreateProject}
           organizations={organizations || []}
+          regions={regions || []}
           isLoading={createMutation.isPending}
+          isLoadingRegions={isLoadingRegions}
           title="Create Project"
         />
 
@@ -282,7 +288,9 @@ export default function AdminProjects() {
           onOpenChange={setIsEditDialogOpen}
           onSubmit={handleUpdateProject}
           organizations={organizations || []}
+          regions={regions || []}
           isLoading={updateMutation.isPending}
+          isLoadingRegions={isLoadingRegions}
           title="Edit Project"
           project={selectedProject}
         />
@@ -323,7 +331,9 @@ function ProjectFormDialog({
   onOpenChange,
   onSubmit,
   organizations,
+  regions,
   isLoading,
+  isLoadingRegions,
   title,
   project,
 }: {
@@ -331,10 +341,13 @@ function ProjectFormDialog({
   onOpenChange: (open: boolean) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   organizations: Organization[];
+  regions: Region[];
   isLoading: boolean;
+  isLoadingRegions: boolean;
   title: string;
   project?: Project | null;
 }) {
+  const activeRegions = regions.filter((region) => region.isActive);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -399,14 +412,14 @@ function ProjectFormDialog({
             </div>
             <div>
               <Label htmlFor="region">Region</Label>
-              <Select name="region" defaultValue={project?.region} required>
+              <Select name="region" defaultValue={project?.region} required disabled={isLoadingRegions}>
                 <SelectTrigger data-testid="select-region">
-                  <SelectValue placeholder="Select region" />
+                  <SelectValue placeholder={isLoadingRegions ? "Loading regions..." : "Select region"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {saudiRegions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
+                  {activeRegions.map((region) => (
+                    <SelectItem key={region.id} value={region.name}>
+                      {region.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
