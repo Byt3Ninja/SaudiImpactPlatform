@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { eq } from "drizzle-orm";
-import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, projects, organizations, users, regions, organizationTypesTable, organizationSubtypes, servicesTable } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, type OrganizationSubmission, type InsertOrganizationSubmission, projects, organizations, users, regions, organizationTypesTable, organizationSubtypes, servicesTable, organizationSubmissions } from "@shared/schema";
 import type { IStorage } from "./storage";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -203,5 +203,78 @@ export class DbStorage implements IStorage {
   async deleteService(id: string): Promise<boolean> {
     const result = await db.delete(servicesTable).where(eq(servicesTable.id, id));
     return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async getAllSubmissions(): Promise<OrganizationSubmission[]> {
+    return await db.select().from(organizationSubmissions);
+  }
+
+  async getSubmissionById(id: string): Promise<OrganizationSubmission | undefined> {
+    const result = await db.select().from(organizationSubmissions).where(eq(organizationSubmissions.id, id));
+    return result[0];
+  }
+
+  async getSubmissionsByUser(userId: string): Promise<OrganizationSubmission[]> {
+    return await db.select().from(organizationSubmissions).where(eq(organizationSubmissions.submittedBy, userId));
+  }
+
+  async getPendingSubmissions(): Promise<OrganizationSubmission[]> {
+    return await db.select().from(organizationSubmissions).where(eq(organizationSubmissions.status, "pending"));
+  }
+
+  async createSubmission(insertSubmission: InsertOrganizationSubmission): Promise<OrganizationSubmission> {
+    const result = await db.insert(organizationSubmissions).values(insertSubmission).returning();
+    return result[0];
+  }
+
+  async approveSubmission(id: string, reviewerId: string): Promise<Organization | undefined> {
+    const submission = await this.getSubmissionById(id);
+    if (!submission) return undefined;
+
+    const organizationData: InsertOrganization = {
+      name: submission.name,
+      nameAr: submission.nameAr,
+      type: submission.type,
+      subType: submission.subType,
+      description: submission.description,
+      descriptionAr: submission.descriptionAr,
+      logoUrl: submission.logoUrl,
+      website: submission.website,
+      linkedinUrl: submission.linkedinUrl,
+      contactEmail: submission.contactEmail,
+      region: submission.region,
+      sectorFocus: submission.sectorFocus,
+      sdgFocus: submission.sdgFocus,
+      services: submission.services,
+      status: "active",
+    };
+
+    const organization = await this.createOrganization(organizationData);
+
+    await db
+      .update(organizationSubmissions)
+      .set({
+        status: "approved",
+        reviewedBy: reviewerId,
+        reviewedAt: new Date(),
+      })
+      .where(eq(organizationSubmissions.id, id));
+
+    return organization;
+  }
+
+  async rejectSubmission(id: string, reviewerId: string, reason: string): Promise<OrganizationSubmission | undefined> {
+    const result = await db
+      .update(organizationSubmissions)
+      .set({
+        status: "rejected",
+        reviewedBy: reviewerId,
+        reviewedAt: new Date(),
+        rejectionReason: reason,
+      })
+      .where(eq(organizationSubmissions.id, id))
+      .returning();
+    
+    return result[0];
   }
 }

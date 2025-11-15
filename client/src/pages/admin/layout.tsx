@@ -12,7 +12,8 @@ import {
   MapPin,
   Tag,
   Tags,
-  Wrench
+  Wrench,
+  FileText
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -55,6 +56,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/projects', label: 'Projects', icon: FolderKanban },
     { path: '/admin/organizations', label: 'Organizations', icon: Building2 },
+    { path: '/admin/submissions', label: 'Submissions', icon: FileText },
     { path: '/admin/users', label: 'Users', icon: Users },
     { path: '/admin/regions', label: 'Regions', icon: MapPin },
     { path: '/admin/organization-types', label: 'Organization Types', icon: Tag },

@@ -23,6 +23,9 @@ import AdminRegions from "@/pages/admin/regions";
 import AdminOrganizationTypes from "@/pages/admin/organization-types";
 import AdminOrganizationSubtypes from "@/pages/admin/organization-subtypes";
 import AdminServices from "@/pages/admin/services";
+import AdminSubmissions from "@/pages/admin/submissions";
+import SubmitOrganization from "@/pages/submit-organization";
+import MySubmissions from "@/pages/my-submissions";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -36,6 +39,8 @@ function Router() {
       <Route path="/opportunities" component={Opportunities} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/map" component={Map} />
+      <Route path="/submit-organization" component={SubmitOrganization} />
+      <Route path="/my-submissions" component={MySubmissions} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/projects" component={AdminProjects} />
@@ -45,6 +50,7 @@ function Router() {
       <Route path="/admin/organization-types" component={AdminOrganizationTypes} />
       <Route path="/admin/organization-subtypes" component={AdminOrganizationSubtypes} />
       <Route path="/admin/services" component={AdminServices} />
+      <Route path="/admin/submissions" component={AdminSubmissions} />
       <Route component={NotFound} />
     </Switch>
   );

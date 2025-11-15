@@ -99,6 +99,30 @@ export const servicesTable = pgTable("services", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const organizationSubmissions = pgTable("organization_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  submittedBy: varchar("submitted_by").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  nameAr: text("name_ar"),
+  type: text("type").notNull(),
+  subType: text("sub_type"),
+  description: text("description").notNull(),
+  descriptionAr: text("description_ar"),
+  logoUrl: text("logo_url"),
+  website: text("website"),
+  linkedinUrl: text("linkedin_url"),
+  contactEmail: text("contact_email"),
+  region: text("region").notNull(),
+  sectorFocus: text("sector_focus").array(),
+  sdgFocus: text("sdg_focus").array(),
+  services: text("services").array(),
+  status: text("status").notNull().default("pending"),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by"),
+  rejectionReason: text("rejection_reason"),
+});
+
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
 });
@@ -133,6 +157,16 @@ export const insertServiceSchema = createInsertSchema(servicesTable).omit({
   createdAt: true,
 });
 
+export const insertOrganizationSubmissionSchema = createInsertSchema(organizationSubmissions).omit({
+  id: true,
+  submittedBy: true,
+  submittedAt: true,
+  reviewedAt: true,
+  reviewedBy: true,
+  rejectionReason: true,
+  status: true,
+});
+
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -148,6 +182,8 @@ export type InsertOrganizationSubtype = z.infer<typeof insertOrganizationSubtype
 export type OrganizationSubtype = typeof organizationSubtypes.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
 export type Service = typeof servicesTable.$inferSelect;
+export type InsertOrganizationSubmission = z.infer<typeof insertOrganizationSubmissionSchema>;
+export type OrganizationSubmission = typeof organizationSubmissions.$inferSelect;
 
 export const sdgGoalsData = [
   { id: 1, name: "No Poverty", color: "#E5243B" },

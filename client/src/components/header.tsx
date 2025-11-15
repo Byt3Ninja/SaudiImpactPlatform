@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { Input } from "@/components/ui/input";
-import { Search, Globe } from "lucide-react";
+import { Search, Globe, Send, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/hooks/useAuth';
 
 export function Header() {
   const [location] = useLocation();
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
 
   const navItems = [
     { path: "/", label: t('nav.home') },
@@ -60,6 +62,22 @@ export function Header() {
                 data-testid="input-search"
               />
             </div>
+            {isAuthenticated && (
+              <>
+                <Link href="/submit-organization">
+                  <Button variant="ghost" size="sm" data-testid="link-submit-organization">
+                    <Send className="h-4 w-4 mr-2" />
+                    <span className="hidden lg:inline">Submit Organization</span>
+                  </Button>
+                </Link>
+                <Link href="/my-submissions">
+                  <Button variant="ghost" size="sm" data-testid="link-my-submissions">
+                    <FileText className="h-4 w-4 mr-2" />
+                    <span className="hidden lg:inline">My Submissions</span>
+                  </Button>
+                </Link>
+              </>
+            )}
             <LanguageToggle />
             <ThemeToggle />
           </div>

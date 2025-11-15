@@ -1,8 +1,9 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertOrganizationSchema, insertRegionSchema, insertOrganizationTypeSchema, insertOrganizationSubtypeSchema, insertServiceSchema } from "@shared/schema";
+import { insertProjectSchema, insertOrganizationSchema, insertRegionSchema, insertOrganizationTypeSchema, insertOrganizationSubtypeSchema, insertServiceSchema, insertOrganizationSubmissionSchema } from "@shared/schema";
 import { z } from "zod";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 declare module "express-session" {
   interface SessionData {
@@ -19,6 +20,19 @@ const requireAdminAuth = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  await setupAuth(app);
+
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   app.get("/api/stats", async (_req, res) => {
     try {
       const stats = await storage.getStats();
@@ -424,6 +438,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete service" });
+    }
+  });
+
+  app.get("/api/submissions/my", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const submissions = await storage.getSubmissionsByUser(userId);
+      res.json(submissions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+  });
+
+  app.post("/api/submissions", isAuthenticated, async (req: any, res) => {
+    try {
+      const validatedData = insertOrganizationSubmissionSchema.parse(req.body);
+      const submission = await storage.createSubmission({
+        ...validatedData,
+        submittedBy: (req.user as any).claims.sub,
+      });
+      res.status(201).json(submission);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid submission data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create submission" });
+    }
+  });
+
+  app.get("/api/submissions", requireAdminAuth, async (_req, res) => {
+    try {
+      const submissions = await storage.getAllSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+  });
+
+  app.get("/api/submissions/pending", requireAdminAuth, async (_req, res) => {
+    try {
+      const submissions = await storage.getPendingSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch pending submissions" });
+    }
+  });
+
+  app.get("/api/submissions/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const submission = await storage.getSubmissionById(req.params.id);
+      if (!submission) {
+        return res.status(404).json({ error: "Submission not found" });
+      }
+      res.json(submission);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch submission" });
+    }
+  });
+
+  app.post("/api/submissions/:id/approve", requireAdminAuth, async (req: any, res) => {
+    try {
+      const reviewerId = req.session?.adminAuthenticated ? "admin" : req.user?.claims?.sub || "unknown";
+      const organization = await storage.approveSubmission(req.params.id, reviewerId);
+      if (!organization) {
+        return res.status(404).json({ error: "Submission not found" });
+      }
+      res.json(organization);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve submission" });
+    }
+  });
+
+  app.post("/api/submissions/:id/reject", requireAdminAuth, async (req: any, res) => {
+    try {
+      const { reason } = req.body;
+      if (!reason || typeof reason !== "string") {
+        return res.status(400).json({ error: "Rejection reason is required" });
+      }
+      const reviewerId = req.session?.adminAuthenticated ? "admin" : req.user?.claims?.sub || "unknown";
+      const submission = await storage.rejectSubmission(req.params.id, reviewerId, reason);
+      if (!submission) {
+        return res.status(404).json({ error: "Submission not found" });
+      }
+      res.json(submission);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to reject submission" });
     }
   });
 

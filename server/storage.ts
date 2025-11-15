@@ -1,4 +1,4 @@
-import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, type OrganizationSubmission, type InsertOrganizationSubmission } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { loadOrganizationsFromJSON } from "./transform-data";
 
@@ -95,6 +95,14 @@ export interface IStorage {
   createService(service: InsertService): Promise<Service>;
   updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined>;
   deleteService(id: string): Promise<boolean>;
+  
+  getAllSubmissions(): Promise<OrganizationSubmission[]>;
+  getSubmissionById(id: string): Promise<OrganizationSubmission | undefined>;
+  getSubmissionsByUser(userId: string): Promise<OrganizationSubmission[]>;
+  getPendingSubmissions(): Promise<OrganizationSubmission[]>;
+  createSubmission(submission: InsertOrganizationSubmission): Promise<OrganizationSubmission>;
+  approveSubmission(id: string, reviewerId: string): Promise<Organization | undefined>;
+  rejectSubmission(id: string, reviewerId: string, reason: string): Promise<OrganizationSubmission | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -104,6 +112,7 @@ export class MemStorage implements IStorage {
   private organizationTypes: Map<string, OrganizationType>;
   private organizationSubtypes: Map<string, OrganizationSubtype>;
   private services: Map<string, Service>;
+  private submissions: Map<string, OrganizationSubmission>;
 
   constructor() {
     this.projects = new Map();
@@ -112,6 +121,7 @@ export class MemStorage implements IStorage {
     this.organizationTypes = new Map();
     this.organizationSubtypes = new Map();
     this.services = new Map();
+    this.submissions = new Map();
     this.seedData();
   }
 
@@ -504,6 +514,106 @@ export class MemStorage implements IStorage {
 
   async deleteService(id: string): Promise<boolean> {
     return this.services.delete(id);
+  }
+
+  async getAllSubmissions(): Promise<OrganizationSubmission[]> {
+    return Array.from(this.submissions.values());
+  }
+
+  async getSubmissionById(id: string): Promise<OrganizationSubmission | undefined> {
+    return this.submissions.get(id);
+  }
+
+  async getSubmissionsByUser(userId: string): Promise<OrganizationSubmission[]> {
+    return Array.from(this.submissions.values()).filter(
+      submission => submission.submittedBy === userId
+    );
+  }
+
+  async getPendingSubmissions(): Promise<OrganizationSubmission[]> {
+    return Array.from(this.submissions.values()).filter(
+      submission => submission.status === "pending"
+    );
+  }
+
+  async createSubmission(insertSubmission: InsertOrganizationSubmission): Promise<OrganizationSubmission> {
+    const id = randomUUID();
+    const submission: OrganizationSubmission = {
+      id,
+      submittedBy: insertSubmission.submittedBy,
+      name: insertSubmission.name,
+      nameAr: insertSubmission.nameAr ?? null,
+      type: insertSubmission.type,
+      subType: insertSubmission.subType ?? null,
+      description: insertSubmission.description,
+      descriptionAr: insertSubmission.descriptionAr ?? null,
+      logoUrl: insertSubmission.logoUrl ?? null,
+      website: insertSubmission.website ?? null,
+      linkedinUrl: insertSubmission.linkedinUrl ?? null,
+      contactEmail: insertSubmission.contactEmail ?? null,
+      region: insertSubmission.region,
+      sectorFocus: insertSubmission.sectorFocus ?? null,
+      sdgFocus: insertSubmission.sdgFocus ?? null,
+      services: insertSubmission.services ?? null,
+      status: "pending",
+      submittedAt: new Date(),
+      reviewedAt: null,
+      reviewedBy: null,
+      rejectionReason: null,
+    };
+    this.submissions.set(id, submission);
+    return submission;
+  }
+
+  async approveSubmission(id: string, reviewerId: string): Promise<Organization | undefined> {
+    const submission = this.submissions.get(id);
+    if (!submission) return undefined;
+
+    const organizationData: InsertOrganization = {
+      name: submission.name,
+      nameAr: submission.nameAr,
+      type: submission.type,
+      subType: submission.subType,
+      description: submission.description,
+      descriptionAr: submission.descriptionAr,
+      logoUrl: submission.logoUrl,
+      website: submission.website,
+      linkedinUrl: submission.linkedinUrl,
+      contactEmail: submission.contactEmail,
+      region: submission.region,
+      sectorFocus: submission.sectorFocus,
+      sdgFocus: submission.sdgFocus,
+      services: submission.services,
+      status: "active",
+    };
+
+    const organization = await this.createOrganization(organizationData);
+
+    const updatedSubmission: OrganizationSubmission = {
+      ...submission,
+      status: "approved",
+      reviewedBy: reviewerId,
+      reviewedAt: new Date(),
+    };
+    this.submissions.set(id, updatedSubmission);
+
+    return organization;
+  }
+
+  async rejectSubmission(id: string, reviewerId: string, reason: string): Promise<OrganizationSubmission | undefined> {
+    const submission = this.submissions.get(id);
+    if (!submission) return undefined;
+
+    const updatedSubmission: OrganizationSubmission = {
+      ...submission,
+      status: "rejected",
+      reviewedBy: reviewerId,
+      reviewedAt: new Date(),
+      rejectionReason: reason,
+    };
+    this.submissions.set(id, updatedSubmission);
+
+    return updatedSubmission;
   }
 }
 
