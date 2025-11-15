@@ -8,7 +8,11 @@ import {
   Building2, 
   Users, 
   LogOut,
-  Menu
+  Menu,
+  MapPin,
+  Tag,
+  Tags,
+  Wrench
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -52,6 +56,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/projects', label: 'Projects', icon: FolderKanban },
     { path: '/admin/organizations', label: 'Organizations', icon: Building2 },
     { path: '/admin/users', label: 'Users', icon: Users },
+    { path: '/admin/regions', label: 'Regions', icon: MapPin },
+    { path: '/admin/organization-types', label: 'Organization Types', icon: Tag },
+    { path: '/admin/organization-subtypes', label: 'Organization Subtypes', icon: Tags },
+    { path: '/admin/services', label: 'Services', icon: Wrench },
   ];
 
   return (

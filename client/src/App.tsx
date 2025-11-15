@@ -19,6 +19,10 @@ import AdminDashboard from "@/pages/admin/index";
 import AdminProjects from "@/pages/admin/projects";
 import AdminOrganizations from "@/pages/admin/organizations";
 import AdminUsers from "@/pages/admin/users";
+import AdminRegions from "@/pages/admin/regions";
+import AdminOrganizationTypes from "@/pages/admin/organization-types";
+import AdminOrganizationSubtypes from "@/pages/admin/organization-subtypes";
+import AdminServices from "@/pages/admin/services";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -37,6 +41,10 @@ function Router() {
       <Route path="/admin/projects" component={AdminProjects} />
       <Route path="/admin/organizations" component={AdminOrganizations} />
       <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/regions" component={AdminRegions} />
+      <Route path="/admin/organization-types" component={AdminOrganizationTypes} />
+      <Route path="/admin/organization-subtypes" component={AdminOrganizationSubtypes} />
+      <Route path="/admin/services" component={AdminServices} />
       <Route component={NotFound} />
     </Switch>
   );
