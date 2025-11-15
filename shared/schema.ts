@@ -139,14 +139,14 @@ export const insertUserSchema = createInsertSchema(users).omit({
 });
 
 export const registerUserSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email('Invalid email address').transform(v => v.trim().toLowerCase()),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstName: z.string().min(1, 'First name is required').transform(v => v.trim()),
+  lastName: z.string().min(1, 'Last name is required').transform(v => v.trim()),
 });
 
 export const loginUserSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email('Invalid email address').transform(v => v.trim().toLowerCase()),
   password: z.string().min(1, 'Password is required'),
 });
 

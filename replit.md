@@ -25,6 +25,8 @@ Preferred communication style: Simple, everyday language.
 - Opportunities: Investment opportunities seeking funding
 - Dashboard: Analytics and visualizations using Recharts
 - Map: Interactive OpenStreetMap with project markers and real-time updates
+- Register: User registration with email/password authentication
+- Login: User login with email/password authentication
 - Submit Organization: Public form for authenticated users to submit organizations for admin approval
 - My Submissions: View submission history and status for logged-in users
 
@@ -37,9 +39,15 @@ Preferred communication style: Simple, everyday language.
 
 ### Backend Architecture
 
-**Technology Stack:** Node.js with Express.js, TypeScript, Drizzle ORM for type-safe database interactions, and PostgreSQL (via Neon serverless driver). Session management uses Express sessions with `connect-pg-simple`.
+**Technology Stack:** Node.js with Express.js, TypeScript, Drizzle ORM for type-safe database interactions, and PostgreSQL (via Neon serverless driver). Session management uses Express sessions with `connect-pg-simple` backed by PostgreSQL.
 
-**API Design:** RESTful API endpoints for `/api/stats`, `/api/projects`, `/api/opportunities`, and `/api/organizations`, supporting CRUD operations.
+**Authentication System:** Internal username/password authentication with bcrypt password hashing. Users can register with email/password and submit organizations for admin approval. Admin access uses a separate ADMIN_PASSWORD environment variable. Session cookies are httpOnly with proper secure flags in production.
+
+**API Design:** RESTful API endpoints including:
+- Authentication: `/api/auth/register`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/user`
+- Core resources: `/api/stats`, `/api/projects`, `/api/opportunities`, `/api/organizations`
+- Submissions: `/api/submissions` (create, list, approve, reject)
+- All endpoints support CRUD operations where appropriate
 
 **Data Layer:** Utilizes a storage abstraction (IStorage interface) with a PostgreSQL implementation (DbStorage) using Drizzle ORM and a fallback in-memory storage (MemStorage) for development. Schema validation is done using Zod with `drizzle-zod`.
 
