@@ -180,6 +180,12 @@ export const insertOrganizationSubmissionSchema = createInsertSchema(organizatio
   status: true,
 });
 
+export const createSubmissionSchema = insertOrganizationSubmissionSchema.extend({
+  submittedBy: z.string(),
+  status: z.enum(["pending", "approved", "rejected"]).default("pending"),
+  submittedAt: z.date().optional(),
+});
+
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -196,6 +202,7 @@ export type OrganizationSubtype = typeof organizationSubtypes.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
 export type Service = typeof servicesTable.$inferSelect;
 export type InsertOrganizationSubmission = z.infer<typeof insertOrganizationSubmissionSchema>;
+export type CreateSubmission = z.infer<typeof createSubmissionSchema>;
 export type OrganizationSubmission = typeof organizationSubmissions.$inferSelect;
 
 export const sdgGoalsData = [

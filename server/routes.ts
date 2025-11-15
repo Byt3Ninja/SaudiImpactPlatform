@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertOrganizationSchema, insertRegionSchema, insertOrganizationTypeSchema, insertOrganizationSubtypeSchema, insertServiceSchema, insertOrganizationSubmissionSchema, registerUserSchema, loginUserSchema } from "@shared/schema";
+import { insertProjectSchema, insertOrganizationSchema, insertRegionSchema, insertOrganizationTypeSchema, insertOrganizationSubtypeSchema, insertServiceSchema, insertOrganizationSubmissionSchema, createSubmissionSchema, registerUserSchema, loginUserSchema } from "@shared/schema";
 import { z } from "zod";
 import { setupSession, isAuthenticated, hashPassword, comparePassword } from "./auth";
 
@@ -513,13 +513,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/submissions", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertOrganizationSubmissionSchema.parse(req.body);
-      const submissionData = {
+      const submissionData = createSubmissionSchema.parse({
         ...validatedData,
         submittedBy: req.session.userId!,
         status: 'pending' as const,
-        submittedAt: new Date(),
-      };
-      const submission = await storage.createSubmission(submissionData as any);
+      });
+      const submission = await storage.createSubmission(submissionData);
       res.status(201).json(submission);
     } catch (error) {
       if (error instanceof z.ZodError) {

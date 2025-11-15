@@ -1,4 +1,4 @@
-import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type InsertUser, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, type OrganizationSubmission, type InsertOrganizationSubmission } from "@shared/schema";
+import { type Project, type InsertProject, type Organization, type InsertOrganization, type User, type InsertUser, type UpsertUser, type Region, type InsertRegion, type OrganizationType, type InsertOrganizationType, type OrganizationSubtype, type InsertOrganizationSubtype, type Service, type InsertService, type OrganizationSubmission, type InsertOrganizationSubmission, type CreateSubmission } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { loadOrganizationsFromJSON } from "./transform-data";
 
@@ -102,7 +102,7 @@ export interface IStorage {
   getSubmissionById(id: string): Promise<OrganizationSubmission | undefined>;
   getSubmissionsByUser(userId: string): Promise<OrganizationSubmission[]>;
   getPendingSubmissions(): Promise<OrganizationSubmission[]>;
-  createSubmission(submission: Omit<OrganizationSubmission, 'id' | 'reviewedAt' | 'reviewedBy' | 'rejectionReason'>): Promise<OrganizationSubmission>;
+  createSubmission(submission: CreateSubmission): Promise<OrganizationSubmission>;
   approveSubmission(id: string, reviewerId: string): Promise<Organization | undefined>;
   rejectSubmission(id: string, reviewerId: string, reason: string): Promise<OrganizationSubmission | undefined>;
 }
@@ -567,7 +567,7 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createSubmission(insertSubmission: Omit<OrganizationSubmission, 'id' | 'reviewedAt' | 'reviewedBy' | 'rejectionReason'>): Promise<OrganizationSubmission> {
+  async createSubmission(insertSubmission: CreateSubmission): Promise<OrganizationSubmission> {
     const id = randomUUID();
     const submission: OrganizationSubmission = {
       id,
