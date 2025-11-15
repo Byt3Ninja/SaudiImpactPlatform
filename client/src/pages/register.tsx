@@ -36,14 +36,11 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      await apiRequest('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-        }),
+      await apiRequest('POST', '/api/auth/register', {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
       });
 
       await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
@@ -157,7 +154,7 @@ export default function Register() {
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}
               <Link href="/login">
-                <Button variant="link" className="p-0 h-auto font-normal" data-testid="link-login">
+                <Button variant="ghost" className="p-0 h-auto font-normal" data-testid="link-login">
                   <LogIn className="w-4 h-4 mr-1" />
                   Log in
                 </Button>

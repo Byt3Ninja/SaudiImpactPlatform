@@ -24,10 +24,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await apiRequest('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(formData),
-      });
+      await apiRequest('POST', '/api/auth/login', formData);
 
       await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
 
@@ -96,7 +93,7 @@ export default function Login() {
             <div className="text-center text-sm text-muted-foreground">
               Don't have an account?{' '}
               <Link href="/register">
-                <Button variant="link" className="p-0 h-auto font-normal" data-testid="link-register">
+                <Button variant="ghost" className="p-0 h-auto font-normal" data-testid="link-register">
                   <UserPlus className="w-4 h-4 mr-1" />
                   Create account
                 </Button>
