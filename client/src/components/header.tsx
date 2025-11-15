@@ -3,15 +3,22 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { Input } from "@/components/ui/input";
-import { Search, Globe, Send, FileText } from "lucide-react";
+import { Search, Globe, Send, FileText, LogIn, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const [location] = useLocation();
   const { t } = useTranslation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   const navItems = [
     { path: "/", label: t('nav.home') },
@@ -62,22 +69,66 @@ export function Header() {
                 data-testid="input-search"
               />
             </div>
+
+            {!isLoading && !isAuthenticated && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => (window.location.href = '/api/login')}
+                data-testid="button-login"
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                {t('auth.login', 'Login')}
+              </Button>
+            )}
+
             {isAuthenticated && (
               <>
                 <Link href="/submit-organization">
                   <Button variant="ghost" size="sm" data-testid="link-submit-organization">
                     <Send className="h-4 w-4 mr-2" />
-                    <span className="hidden lg:inline">Submit Organization</span>
+                    <span className="hidden lg:inline">{t('nav.submitOrganization', 'Submit Organization')}</span>
                   </Button>
                 </Link>
-                <Link href="/my-submissions">
-                  <Button variant="ghost" size="sm" data-testid="link-my-submissions">
-                    <FileText className="h-4 w-4 mr-2" />
-                    <span className="hidden lg:inline">My Submissions</span>
-                  </Button>
-                </Link>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" data-testid="button-user-menu">
+                      <User className="h-4 w-4 mr-2" />
+                      <span className="hidden lg:inline">{user?.firstName || t('auth.account', 'Account')}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-2 py-1.5 text-sm">
+                      <div className="font-medium" data-testid="text-user-name">
+                        {user?.firstName} {user?.lastName}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate" data-testid="text-user-email">
+                        {user?.email}
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-submissions">
+                        <div className="flex items-center w-full cursor-pointer" data-testid="link-my-submissions-dropdown">
+                          <FileText className="h-4 w-4 mr-2" />
+                          {t('nav.mySubmissions', 'My Submissions')}
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => (window.location.href = '/api/logout')}
+                      data-testid="button-logout"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {t('auth.logout', 'Logout')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
+
             <LanguageToggle />
             <ThemeToggle />
           </div>
