@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { Input } from "@/components/ui/input";
-import { Search, Globe, Send, FileText, LogIn, User, LogOut } from "lucide-react";
+import { Search, Globe, Send, FileText, LogIn, User, LogOut, FolderPlus, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
@@ -122,6 +122,22 @@ export function Header() {
                       </div>
                     </div>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/submit-project">
+                        <div className="flex items-center w-full cursor-pointer" data-testid="link-submit-project-dropdown">
+                          <FolderPlus className="h-4 w-4 mr-2" />
+                          {t('nav.submitProject', 'Submit Project')}
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-projects">
+                        <div className="flex items-center w-full cursor-pointer" data-testid="link-my-projects-dropdown">
+                          <Briefcase className="h-4 w-4 mr-2" />
+                          {t('nav.myProjects', 'My Projects')}
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/my-submissions">
                         <div className="flex items-center w-full cursor-pointer" data-testid="link-my-submissions-dropdown">

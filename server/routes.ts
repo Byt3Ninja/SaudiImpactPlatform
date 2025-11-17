@@ -5,6 +5,14 @@ import { insertProjectSchema, insertOrganizationSchema, insertRegionSchema, inse
 import { z } from "zod";
 import { setupSession, isAuthenticated, hashPassword, comparePassword } from "./auth";
 
+const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.session?.userId) {
+    return res.status(401).json({ error: "Unauthorized: Not logged in" });
+  }
+  
+  next();
+};
+
 const requireAdminAuth = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session?.adminAuthenticated) {
     return res.status(401).json({ error: "Unauthorized: Not logged in" });
@@ -188,10 +196,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/projects", requireAdminAuth, async (req, res) => {
+  app.get("/api/user/projects", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId;
+      const projects = await storage.getUserProjects(userId!);
+      res.json(projects);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user projects" });
+    }
+  });
+
+  app.post("/api/projects", async (req, res) => {
+    if (!req.session.userId && !req.session.adminAuthenticated) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
     try {
       const validatedData = insertProjectSchema.parse(req.body);
-      const project = await storage.createProject(validatedData);
+      const userId = req.session.userId;
+      const projectData = { ...validatedData, createdBy: userId || null };
+      const project = await storage.createProject(projectData);
       res.status(201).json(project);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -201,13 +225,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/projects/:id", requireAdminAuth, async (req, res) => {
+  app.patch("/api/projects/:id", async (req, res) => {
+    if (!req.session.userId && !req.session.adminAuthenticated) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
     try {
-      const validatedData = insertProjectSchema.partial().parse(req.body);
-      const project = await storage.updateProject(req.params.id, validatedData);
-      if (!project) {
+      const existingProject = await storage.getProjectById(req.params.id);
+      if (!existingProject) {
         return res.status(404).json({ error: "Project not found" });
       }
+      
+      const isAdmin = req.session.adminAuthenticated === true;
+      const isOwner = existingProject.createdBy === req.session.userId;
+      
+      if (!isAdmin && !isOwner) {
+        return res.status(403).json({ error: "Forbidden: You can only edit your own projects" });
+      }
+      
+      const validatedData = insertProjectSchema.partial().parse(req.body);
+      const project = await storage.updateProject(req.params.id, validatedData);
       res.json(project);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -217,12 +254,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/projects/:id", requireAdminAuth, async (req, res) => {
+  app.delete("/api/projects/:id", async (req, res) => {
+    if (!req.session.userId && !req.session.adminAuthenticated) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
     try {
-      const deleted = await storage.deleteProject(req.params.id);
-      if (!deleted) {
+      const existingProject = await storage.getProjectById(req.params.id);
+      if (!existingProject) {
         return res.status(404).json({ error: "Project not found" });
       }
+      
+      const isAdmin = req.session.adminAuthenticated === true;
+      const isOwner = existingProject.createdBy === req.session.userId;
+      
+      if (!isAdmin && !isOwner) {
+        return res.status(403).json({ error: "Forbidden: You can only delete your own projects" });
+      }
+      
+      const deleted = await storage.deleteProject(req.params.id);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete project" });

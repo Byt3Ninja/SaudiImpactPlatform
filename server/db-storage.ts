@@ -30,12 +30,16 @@ export class DbStorage implements IStorage {
     return await db.select().from(projects).where(eq(projects.seekingInvestment, true));
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async getUserProjects(userId: string): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.createdBy, userId));
+  }
+
+  async createProject(insertProject: InsertProject & { createdBy?: string | null }): Promise<Project> {
     const result = await db.insert(projects).values(insertProject).returning();
     return result[0];
   }
 
-  async updateProject(id: string, updates: Partial<InsertProject>): Promise<Project | undefined> {
+  async updateProject(id: string, updates: Partial<InsertProject> & { createdBy?: string | null }): Promise<Project | undefined> {
     const result = await db.update(projects).set(updates).where(eq(projects.id, id)).returning();
     return result[0];
   }

@@ -22,6 +22,7 @@ export const projects = pgTable("projects", {
   seekingInvestment: boolean("seeking_investment").default(false),
   latitude: real("latitude"),
   longitude: real("longitude"),
+  createdBy: varchar("created_by"),
 });
 
 export const organizations = pgTable("organizations", {
@@ -126,6 +127,7 @@ export const organizationSubmissions = pgTable("organization_submissions", {
 
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
+  createdBy: true,
 });
 
 export const insertOrganizationSchema = createInsertSchema(organizations).omit({

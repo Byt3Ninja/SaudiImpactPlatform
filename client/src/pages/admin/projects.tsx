@@ -347,6 +347,7 @@ function ProjectFormDialog({
   title: string;
   project?: Project | null;
 }) {
+  const [imageUrl, setImageUrl] = useState(project?.imageUrl || '');
   const activeRegions = regions.filter((region) => region.isActive);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -379,6 +380,33 @@ function ProjectFormDialog({
                 defaultValue={project?.description}
                 data-testid="input-description"
               />
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor="imageUrl">Cover Image URL</Label>
+              <Input
+                id="imageUrl"
+                name="imageUrl"
+                type="text"
+                placeholder="/attached_assets/stock_images/example.jpg or https://..."
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                data-testid="input-image-url"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Enter a URL to an image (local path or external URL)
+              </p>
+              {imageUrl && (
+                <div className="mt-3 rounded-md overflow-hidden border">
+                  <img
+                    src={imageUrl}
+                    alt="Preview"
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
             </div>
             <div>
               <Label htmlFor="category">Category</Label>

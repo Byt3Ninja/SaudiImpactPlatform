@@ -26,6 +26,8 @@ import AdminServices from "@/pages/admin/services";
 import AdminSubmissions from "@/pages/admin/submissions";
 import SubmitOrganization from "@/pages/submit-organization";
 import MySubmissions from "@/pages/my-submissions";
+import SubmitProject from "@/pages/submit-project";
+import MyProjects from "@/pages/my-projects";
 import Register from "@/pages/register";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
@@ -45,6 +47,8 @@ function Router() {
       <Route path="/map" component={Map} />
       <Route path="/submit-organization" component={SubmitOrganization} />
       <Route path="/my-submissions" component={MySubmissions} />
+      <Route path="/submit-project" component={SubmitProject} />
+      <Route path="/my-projects" component={MyProjects} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/projects" component={AdminProjects} />

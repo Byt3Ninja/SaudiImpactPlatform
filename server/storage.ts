@@ -23,7 +23,7 @@ function normalizeInsertOrganization(insert: InsertOrganization, id: string): Or
   };
 }
 
-function normalizeInsertProject(insert: InsertProject, id: string): Project {
+function normalizeInsertProject(insert: InsertProject & { createdBy?: string | null }, id: string): Project {
   return {
     id,
     title: insert.title,
@@ -43,6 +43,7 @@ function normalizeInsertProject(insert: InsertProject, id: string): Project {
     seekingInvestment: insert.seekingInvestment ?? false,
     latitude: insert.latitude ?? null,
     longitude: insert.longitude ?? null,
+    createdBy: insert.createdBy ?? null,
   };
 }
 
@@ -52,8 +53,9 @@ export interface IStorage {
   getProjectsByOrganization(organizationId: string): Promise<Project[]>;
   getFeaturedProjects(): Promise<Project[]>;
   getInvestmentOpportunities(): Promise<Project[]>;
-  createProject(project: InsertProject): Promise<Project>;
-  updateProject(id: string, project: Partial<InsertProject>): Promise<Project | undefined>;
+  getUserProjects(userId: string): Promise<Project[]>;
+  createProject(project: InsertProject & { createdBy?: string | null }): Promise<Project>;
+  updateProject(id: string, project: Partial<InsertProject> & { createdBy?: string | null }): Promise<Project | undefined>;
   deleteProject(id: string): Promise<boolean>;
   
   getAllOrganizations(): Promise<Organization[]>;
@@ -300,18 +302,28 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async getUserProjects(userId: string): Promise<Project[]> {
+    return Array.from(this.projects.values()).filter(
+      project => project.createdBy === userId
+    );
+  }
+
+  async createProject(insertProject: InsertProject & { createdBy?: string | null }): Promise<Project> {
     const id = randomUUID();
     const project: Project = normalizeInsertProject(insertProject, id);
     this.projects.set(id, project);
     return project;
   }
 
-  async updateProject(id: string, updates: Partial<InsertProject>): Promise<Project | undefined> {
+  async updateProject(id: string, updates: Partial<InsertProject> & { createdBy?: string | null }): Promise<Project | undefined> {
     const project = this.projects.get(id);
     if (!project) return undefined;
     
-    const updatedProject = { ...project, ...updates };
+    const updatedProject = { 
+      ...project, 
+      ...updates,
+      createdBy: updates.createdBy !== undefined ? updates.createdBy : project.createdBy
+    };
     this.projects.set(id, updatedProject);
     return updatedProject;
   }

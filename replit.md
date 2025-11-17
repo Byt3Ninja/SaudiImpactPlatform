@@ -29,6 +29,8 @@ Preferred communication style: Simple, everyday language.
 - Login: User login with email/password authentication
 - Submit Organization: Public form for authenticated users to submit organizations for admin approval
 - My Submissions: View submission history and status for logged-in users
+- Submit Project: Public form for authenticated users to submit their own projects
+- My Projects: User dashboard to view and manage their submitted projects
 
 **Admin Panel Pages (accessible via `/admin`):**
 - Dashboard: Platform statistics and recent activity
@@ -47,7 +49,16 @@ Preferred communication style: Simple, everyday language.
 - Authentication: `/api/auth/register`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/user`
 - Core resources: `/api/stats`, `/api/projects`, `/api/opportunities`, `/api/organizations`
 - Submissions: `/api/submissions` (create, list, approve, reject)
-- All endpoints support CRUD operations where appropriate
+- User Projects: `/api/user/projects` (user-scoped endpoint for ownership filtering)
+- All endpoints support CRUD operations with proper authorization checks
+
+**Authorization System:** Implements ownership-based access control for projects:
+- Projects include a `createdBy` field linking to the user ID of the creator
+- Regular users can only create, edit, and delete their own projects
+- Admin users can manage all projects regardless of ownership
+- The `insertProjectSchema` omits `createdBy` to prevent client tampering
+- Server-side code sets `createdBy` from the authenticated session
+- Authorization enforced via `isAdmin || isOwner` checks on mutations
 
 **Data Layer:** Utilizes a storage abstraction (IStorage interface) with a PostgreSQL implementation (DbStorage) using Drizzle ORM and a fallback in-memory storage (MemStorage) for development. Schema validation is done using Zod with `drizzle-zod`.
 
@@ -55,11 +66,13 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Models
 
-**Projects Schema:** Represents impact initiatives including basic info, geographic data, organizational relationship, funding, impact tracking (SDGs, metrics), and media.
+**Projects Schema:** Represents impact initiatives including basic info, geographic data, organizational relationship, funding, impact tracking (SDGs, metrics), media, and ownership tracking via the `createdBy` field (nullable, references user ID).
 
 **Organizations Schema:** Represents entities driving projects with basic information, classification, contact details, regional data, impact focus (sector, SDGs), services, and branding.
 
-**Relationships:** A one-to-many relationship exists between Organizations and Projects via `organizationId`.
+**Relationships:** 
+- One-to-many: Organizations → Projects (via `organizationId`)
+- One-to-many: Users → Projects (via `createdBy`, nullable for admin-created projects)
 
 ### Configuration and Build
 
