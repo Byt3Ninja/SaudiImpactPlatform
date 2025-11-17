@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Building2, Globe, Mail, MapPin, ArrowRight } from "lucide-react";
+import { DEFAULT_ORGANIZATION_LOGO } from '@/lib/constants';
 
 export default function OrganizationDetail() {
   const [, params] = useRoute("/organizations/:id");
@@ -62,17 +63,14 @@ export default function OrganizationDetail() {
           </Link>
           
           <div className="flex items-start gap-6">
-            {organization.logoUrl ? (
-              <img
-                src={organization.logoUrl}
-                alt={organization.name}
-                className="w-20 h-20 rounded-md object-cover"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-md bg-primary/10 flex items-center justify-center">
-                <Building2 className="h-10 w-10 text-primary" />
-              </div>
-            )}
+            <img
+              src={organization.logoUrl || DEFAULT_ORGANIZATION_LOGO}
+              alt={organization.name}
+              className="w-20 h-20 rounded-md object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEFAULT_ORGANIZATION_LOGO;
+              }}
+            />
             <div className="flex-1">
               <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-3" data-testid="text-org-name">
                 {organization.name}

@@ -12,6 +12,7 @@ import { Search, Building2, Globe, Mail, ArrowRight } from "lucide-react";
 import { organizationTypes, saudiRegions } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_ORGANIZATION_LOGO } from '@/lib/constants';
 
 export default function Organizations() {
   const { t } = useTranslation();
@@ -125,13 +126,14 @@ export default function Organizations() {
                   <Card key={org.id} className="hover-elevate" data-testid={`card-organization-${org.id}`}>
                     <CardHeader>
                       <div className="flex items-start gap-3 mb-2">
-                        {org.logoUrl ? (
-                          <img src={org.logoUrl} alt={org.name} className="w-12 h-12 rounded-md object-cover" />
-                        ) : (
-                          <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-primary" />
-                          </div>
-                        )}
+                        <img 
+                          src={org.logoUrl || DEFAULT_ORGANIZATION_LOGO} 
+                          alt={org.name} 
+                          className="w-12 h-12 rounded-md object-cover" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = DEFAULT_ORGANIZATION_LOGO;
+                          }}
+                        />
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-base line-clamp-2" data-testid={`text-org-name-${org.id}`}>
                             {org.name}

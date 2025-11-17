@@ -13,6 +13,7 @@ import { Search, TrendingUp, DollarSign, MapPin, ArrowRight } from "lucide-react
 import { projectCategories, saudiRegions, sdgGoalsData } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_PROJECT_IMAGE } from '@/lib/constants';
 
 export default function Opportunities() {
   const { t } = useTranslation();
@@ -146,16 +147,17 @@ export default function Opportunities() {
                   return (
                     <Card key={opportunity.id} className="hover-elevate" data-testid={`card-opportunity-${opportunity.id}`}>
                       <div className="grid md:grid-cols-3 gap-6">
-                        {opportunity.imageUrl && (
-                          <div className="md:col-span-1">
-                            <img
-                              src={opportunity.imageUrl}
-                              alt={opportunity.title}
-                              className="w-full h-full object-cover rounded-l-md"
-                            />
-                          </div>
-                        )}
-                        <div className={opportunity.imageUrl ? "md:col-span-2" : "md:col-span-3"}>
+                        <div className="md:col-span-1">
+                          <img
+                            src={opportunity.imageUrl || DEFAULT_PROJECT_IMAGE}
+                            alt={opportunity.title}
+                            className="w-full h-full object-cover rounded-l-md"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+                            }}
+                          />
+                        </div>
+                        <div className="md:col-span-2">
                           <CardHeader>
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">

@@ -38,6 +38,7 @@ import { apiRequest } from '@/lib/adminApi';
 import { queryClient } from '@/lib/queryClient';
 import type { Project, InsertProject, Organization, Region } from '@shared/schema';
 import { projectCategories, projectStatuses } from '@shared/schema';
+import { DEFAULT_PROJECT_IMAGE } from '@/lib/constants';
 
 export default function AdminProjects() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -393,20 +394,18 @@ function ProjectFormDialog({
                 data-testid="input-image-url"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Enter a URL to an image (local path or external URL)
+                Optional: Enter a URL to a cover image (or leave blank for default placeholder)
               </p>
-              {imageUrl && (
-                <div className="mt-3 rounded-md overflow-hidden border">
-                  <img
-                    src={imageUrl}
-                    alt="Preview"
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
+              <div className="mt-3 rounded-md overflow-hidden border">
+                <img
+                  src={imageUrl || DEFAULT_PROJECT_IMAGE}
+                  alt="Preview"
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+                  }}
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="category">Category</Label>

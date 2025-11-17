@@ -191,6 +191,9 @@ export default function MyProjects() {
                       src={project.imageUrl || DEFAULT_PROJECT_IMAGE}
                       alt={project.title}
                       className="w-48 h-32 object-cover rounded-md"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+                      }}
                     />
                   </div>
                   <div className="flex-1">

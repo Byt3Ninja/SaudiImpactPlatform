@@ -16,6 +16,8 @@ Preferred communication style: Simple, everyday language.
 
 **Design System:** Adheres to Material Design 3 principles, inspired by Linear, Stripe, and Mapbox, focusing on data transparency and institutional trust. It uses Inter and Playfair Display fonts, consistent spacing, responsive grid layouts, and a custom HSL color system supporting light/dark themes.
 
+**Image Handling:** Professional placeholder images are implemented platform-wide to ensure no broken images ever appear. Two placeholder images are used: one for project cover images (geometric pattern with Saudi green/gold colors) and one for organization logos. All image renders include fallback to default placeholders and error handling that gracefully resets to the placeholder if URLs fail to load. This ensures a polished, professional appearance suitable for governmental and institutional use.
+
 **Key Pages:**
 - Home: Hero section with featured projects and statistics
 - Projects: Filterable listing with category, region, status, and SDG filters

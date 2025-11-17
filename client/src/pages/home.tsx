@@ -116,6 +116,9 @@ export default function Home() {
                       src={project.imageUrl || DEFAULT_PROJECT_IMAGE}
                       alt={project.title}
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+                      }}
                     />
                     <div className="absolute top-3 right-3">
                       <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm" data-testid={`badge-category-${project.id}`}>

@@ -63,6 +63,9 @@ export default function ProjectDetail() {
           src={project.imageUrl || DEFAULT_PROJECT_IMAGE}
           alt={project.title}
           className="object-cover w-full h-full"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8">

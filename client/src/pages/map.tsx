@@ -11,6 +11,7 @@ import { projectCategories, saudiRegions } from "@shared/schema";
 import { Link } from "wouter";
 import { useTranslation } from 'react-i18next';
 import { OpenStreetMap } from "@/components/OpenStreetMap";
+import { DEFAULT_PROJECT_IMAGE } from '@/lib/constants';
 
 export default function Map() {
   const { t } = useTranslation();
@@ -176,13 +177,14 @@ export default function Map() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {selectedProject.imageUrl && (
-                    <img
-                      src={selectedProject.imageUrl}
-                      alt={selectedProject.title}
-                      className="w-full aspect-video object-cover rounded-md"
-                    />
-                  )}
+                  <img
+                    src={selectedProject.imageUrl || DEFAULT_PROJECT_IMAGE}
+                    alt={selectedProject.title}
+                    className="w-full aspect-video object-cover rounded-md"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+                    }}
+                  />
                   <p className="text-sm text-muted-foreground">{selectedProject.description}</p>
                   <div className="flex gap-2">
                     <Link href={`/projects/${selectedProject.id}`} className="flex-1">
