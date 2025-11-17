@@ -13,6 +13,7 @@ import { Search, ArrowRight, Filter, Leaf, Heart, Building2, GraduationCap, Zap,
 import { projectCategories, saudiRegions, projectStatuses, sdgGoalsData } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_PROJECT_IMAGE } from '@/lib/constants';
 
 const categoryIcons = {
   Environmental: Leaf,
@@ -199,21 +200,19 @@ export default function Projects() {
                   const CategoryIcon = categoryIcons[project.category as keyof typeof categoryIcons] || categoryIcons.default;
                   return (
                     <Card key={project.id} className="hover-elevate overflow-hidden group" data-testid={`card-project-${project.id}`}>
-                      {project.imageUrl && (
-                        <div className="relative aspect-video overflow-hidden">
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute top-3 right-3">
-                            <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm">
-                              <CategoryIcon className="h-3 w-3 mr-1" />
-                              {project.category}
-                            </Badge>
-                          </div>
+                      <div className="relative aspect-video overflow-hidden">
+                        <img
+                          src={project.imageUrl || DEFAULT_PROJECT_IMAGE}
+                          alt={project.title}
+                          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-3 right-3">
+                          <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm">
+                            <CategoryIcon className="h-3 w-3 mr-1" />
+                            {project.category}
+                          </Badge>
                         </div>
-                      )}
+                      </div>
                       <CardHeader>
                         <CardTitle className="line-clamp-2" data-testid={`text-project-title-${project.id}`}>
                           {project.title}

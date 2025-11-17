@@ -37,6 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Project, Organization, Region } from '@shared/schema';
 import { projectCategories, projectStatuses } from '@shared/schema';
+import { DEFAULT_PROJECT_IMAGE } from '@/lib/constants';
 
 export default function MyProjects() {
   const [, navigate] = useLocation();
@@ -185,15 +186,13 @@ export default function MyProjects() {
             <Card key={project.id} className="hover-elevate" data-testid={`card-project-${project.id}`}>
               <CardContent className="p-6">
                 <div className="flex gap-6">
-                  {project.imageUrl && (
-                    <div className="flex-shrink-0">
-                      <img
-                        src={project.imageUrl}
-                        alt={project.title}
-                        className="w-48 h-32 object-cover rounded-md"
-                      />
-                    </div>
-                  )}
+                  <div className="flex-shrink-0">
+                    <img
+                      src={project.imageUrl || DEFAULT_PROJECT_IMAGE}
+                      alt={project.title}
+                      className="w-48 h-32 object-cover rounded-md"
+                    />
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -303,7 +302,12 @@ function ProjectEditDialog({
   isLoadingRegions: boolean;
   project: Project | null;
 }) {
-  const [imageUrl, setImageUrl] = useState(project?.imageUrl || '');
+  const [imageUrl, setImageUrl] = useState('');
+
+  // Update imageUrl when project changes
+  if (project && imageUrl === '' && open) {
+    setImageUrl(project.imageUrl || '');
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -347,20 +351,18 @@ function ProjectEditDialog({
                 data-testid="input-image-url"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Enter a URL to an image (local path or external URL)
+                Optional: Enter a URL to a cover image (or leave blank for default placeholder)
               </p>
-              {imageUrl && (
-                <div className="mt-3 rounded-md overflow-hidden border">
-                  <img
-                    src={imageUrl}
-                    alt="Preview"
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
+              <div className="mt-3 rounded-md overflow-hidden border">
+                <img
+                  src={imageUrl || DEFAULT_PROJECT_IMAGE}
+                  alt="Preview"
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+                  }}
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="category">Category *</Label>

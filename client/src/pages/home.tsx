@@ -7,6 +7,7 @@ import type { Project, Organization } from "@shared/schema";
 import { ArrowRight, TrendingUp, Users, Target, Building2, Leaf, Heart } from "lucide-react";
 import heroImage from "@assets/generated_images/Saudi_renewable_energy_project_7646abb9.png";
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_PROJECT_IMAGE } from '@/lib/constants';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -110,21 +111,19 @@ export default function Home() {
               const CategoryIcon = categoryIcons[project.category as keyof typeof categoryIcons] || Target;
               return (
                 <Card key={project.id} className="hover-elevate overflow-hidden group" data-testid={`card-project-${project.id}`}>
-                  {project.imageUrl && (
-                    <div className="relative aspect-video overflow-hidden">
-                      <img
-                        src={project.imageUrl}
-                        alt={project.title}
-                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-3 right-3">
-                        <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm" data-testid={`badge-category-${project.id}`}>
-                          <CategoryIcon className="h-3 w-3 mr-1" />
-                          {project.category}
-                        </Badge>
-                      </div>
+                  <div className="relative aspect-video overflow-hidden">
+                    <img
+                      src={project.imageUrl || DEFAULT_PROJECT_IMAGE}
+                      alt={project.title}
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm" data-testid={`badge-category-${project.id}`}>
+                        <CategoryIcon className="h-3 w-3 mr-1" />
+                        {project.category}
+                      </Badge>
                     </div>
-                  )}
+                  </div>
                   <CardHeader>
                     <CardTitle className="line-clamp-2" data-testid={`text-project-title-${project.id}`}>{project.title}</CardTitle>
                     <p className="text-sm text-muted-foreground">{project.region}</p>

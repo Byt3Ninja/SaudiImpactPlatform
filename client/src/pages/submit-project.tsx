@@ -18,6 +18,7 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { Loader2, Upload } from 'lucide-react';
 import type { Organization, Region } from '@shared/schema';
 import { projectCategories, projectStatuses } from '@shared/schema';
+import { DEFAULT_PROJECT_IMAGE } from '@/lib/constants';
 
 export default function SubmitProject() {
   const [, navigate] = useLocation();
@@ -149,20 +150,18 @@ export default function SubmitProject() {
                   data-testid="input-image-url"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Optional: Enter a URL to a cover image for your project
+                  Optional: Enter a URL to a cover image (or leave blank for default placeholder)
                 </p>
-                {imageUrl && (
-                  <div className="mt-3 rounded-md overflow-hidden border">
-                    <img
-                      src={imageUrl}
-                      alt="Preview"
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
+                <div className="mt-3 rounded-md overflow-hidden border">
+                  <img
+                    src={imageUrl || DEFAULT_PROJECT_IMAGE}
+                    alt="Preview"
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = DEFAULT_PROJECT_IMAGE;
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
