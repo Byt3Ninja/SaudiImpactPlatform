@@ -29,8 +29,8 @@ export function setupSession(app: Express) {
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        secure: !isProduction ? false : true,
-        sameSite: !isProduction ? 'none' : 'lax',
+        secure: isProduction,
+        sameSite: 'lax',
         maxAge: sessionTtl,
       },
     })
