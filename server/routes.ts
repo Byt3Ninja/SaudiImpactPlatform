@@ -40,7 +40,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       req.session.userId = user.id;
-      res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName });
+      
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Registration failed" });
+        }
+        res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName });
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: error.errors[0].message });
@@ -65,7 +72,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       req.session.userId = user.id;
-      res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName });
+      
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Login failed" });
+        }
+        res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName });
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: error.errors[0].message });
@@ -158,7 +172,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (password === adminPassword) {
         req.session.adminAuthenticated = true;
-        res.json({ success: true });
+        
+        req.session.save((err) => {
+          if (err) {
+            console.error("Admin session save error:", err);
+            return res.status(500).json({ error: "Authentication failed" });
+          }
+          res.json({ success: true });
+        });
       } else {
         res.status(401).json({ error: "Invalid password", success: false });
       }

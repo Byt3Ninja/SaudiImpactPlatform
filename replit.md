@@ -47,6 +47,8 @@ Preferred communication style: Simple, everyday language.
 
 **Authentication System:** Internal username/password authentication with bcrypt password hashing. Users can register with email/password and submit organizations for admin approval. Admin access uses a separate ADMIN_PASSWORD environment variable. Session cookies are httpOnly with proper secure flags in production.
 
+**Session Management:** All authentication endpoints (login, register, admin auth) explicitly call `req.session.save()` before sending responses to ensure session data is persisted to PostgreSQL before the client receives the response. This prevents race conditions where sessions might not be saved properly.
+
 **API Design:** RESTful API endpoints including:
 - Authentication: `/api/auth/register`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/user`
 - Core resources: `/api/stats`, `/api/projects`, `/api/opportunities`, `/api/organizations`
