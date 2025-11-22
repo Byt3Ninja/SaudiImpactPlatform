@@ -18,11 +18,8 @@ export function setupSession(app: Express) {
   });
 
   const isProduction = process.env.NODE_ENV === 'production';
-  const trustProxy = process.env.TRUST_PROXY === 'true' || isProduction;
   
-  if (trustProxy) {
-    app.set("trust proxy", 1);
-  }
+  app.set("trust proxy", 1);
 
   app.use(
     session({
@@ -32,8 +29,8 @@ export function setupSession(app: Express) {
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
+        secure: !isProduction ? false : true,
+        sameSite: !isProduction ? 'none' : 'lax',
         maxAge: sessionTtl,
       },
     })
