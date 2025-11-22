@@ -26,13 +26,12 @@ export default function Login() {
     try {
       await apiRequest('POST', '/api/auth/login', formData);
 
-      await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-
       toast({
         title: 'Success',
         description: 'Logged in successfully',
       });
-      navigate('/');
+      
+      window.location.href = '/';
     } catch (error: any) {
       toast({
         title: 'Login failed',

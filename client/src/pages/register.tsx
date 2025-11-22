@@ -43,13 +43,12 @@ export default function Register() {
         lastName: formData.lastName,
       });
 
-      await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-
       toast({
         title: 'Success',
         description: 'Account created successfully',
       });
-      navigate('/');
+      
+      window.location.href = '/';
     } catch (error: any) {
       toast({
         title: 'Registration failed',
