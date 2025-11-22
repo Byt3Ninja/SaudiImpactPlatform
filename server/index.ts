@@ -61,8 +61,10 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    const { setupVite } = await import("./vite");
-    await setupVite(app, server);
+    // Use eval-wrapped dynamic import to prevent esbuild from bundling vite in production
+    // This keeps vite and all vite plugins out of dist/index.js
+    const viteModule = await (0, eval)('import("./vite.js")');
+    await viteModule.setupVite(app, server);
   } else {
     serveStatic(app);
   }

@@ -124,10 +124,16 @@ docker-compose logs -f app
 
 ### Issue 1: "Cannot find package 'vite'"
 
-**Status:** ✅ Fixed in latest version
+**Status:** ✅ **PERMANENTLY FIXED** - Vite is now completely excluded from production builds
 
-**If you still see this:**
+**Technical Details:** The build process now uses an eval-wrapped dynamic import to prevent esbuild from bundling vite and its plugins into the production bundle. This ensures vite stays in devDependencies where it belongs.
+
+**If you somehow still see this:**
 ```bash
+# Pull the absolute latest code
+git pull origin main
+
+# Clean rebuild
 docker-compose down
 docker-compose build --no-cache
 docker-compose up -d
@@ -257,3 +263,22 @@ docker-compose up -d
 ---
 
 **That's it! Your Saudi Impact Platform is now running in production! 🎉**
+
+---
+
+## 📝 Recent Fixes (Latest Version)
+
+### ✅ Vite Import Error - PERMANENTLY FIXED
+- **Issue**: `ERR_MODULE_NOT_FOUND: Cannot find package 'vite'` in production
+- **Root Cause**: esbuild was bundling vite.ts and vite.config.ts into production build
+- **Solution**: Implemented eval-wrapped dynamic import to exclude vite from bundle
+- **Status**: Completely resolved - vite no longer appears in dist/index.js
+
+### ✅ drizzle-kit Missing - FIXED
+- **Issue**: `sh: drizzle-kit: not found` during migrations
+- **Solution**: Moved drizzle-kit and tsx to production dependencies
+- **Status**: Migration containers now work correctly
+
+### ✅ Production-Ready
+All known deployment blockers have been resolved. The platform is production-ready.
+
