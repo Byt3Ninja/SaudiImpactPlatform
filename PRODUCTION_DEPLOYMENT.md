@@ -124,7 +124,9 @@ docker-compose logs -f app
 
 ### Issue 1: "Cannot find package 'vite'"
 
-**Fix:**
+**Status:** ✅ Fixed in latest version
+
+**If you still see this:**
 ```bash
 docker-compose down
 docker-compose build --no-cache
@@ -133,8 +135,14 @@ docker-compose up -d
 
 ### Issue 2: "drizzle-kit: not found"
 
-**Fix:**
+**Status:** ✅ Fixed in latest version (drizzle-kit moved to production dependencies)
+
+**If you still see this after rebuild:**
 ```bash
+# Ensure you have the latest code
+git pull
+
+# Clean rebuild
 docker-compose build --no-cache
 docker-compose --profile migration up db-migrate
 ```
